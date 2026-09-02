@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>순환 100제</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --p1:#6c5ce7; --p1-dark:#4834b0; --p2:#f0a500; --p2-dark:#b97a00;
+  --bg1:#0f0c29; --bg2:#302b63; --bg3:#24243e;
+  --card:#ffffff; --ink:#211d3a; --sub:#7a76a3;
+  --good:#2e8b57; --warn:#d9822b; --gold:#d4a017; --line:#e6e3f5;
+}
+*{box-sizing:border-box;}
+body{margin:0;font-family:'Noto Sans KR',sans-serif;color:var(--ink);
+  background:linear-gradient(160deg,var(--bg1) 0%, var(--bg2) 55%, var(--bg3) 100%);
+  min-height:100vh;padding-bottom:40px;}
+.wrap{max-width:640px;margin:0 auto;padding:18px 16px 60px;}
+.hero{text-align:center;padding:18px 10px 6px;}
+.hero .eyebrow{font-size:13px;color:#c9c4ff;font-weight:700;letter-spacing:.5px;}
+.hero h1{font-family:Georgia,'Nanum Myeongjo','Batang',serif;font-size:30px;margin:4px 0 6px;
+  background:linear-gradient(90deg,#a78bfa,var(--p2));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.hero p{font-size:13px;color:#c9c4ff;margin:0 0 14px;}
+.gauge{height:10px;border-radius:6px;background:linear-gradient(90deg,var(--p2),#c8b7a6,var(--p1),#3fae6a);position:relative;margin-bottom:4px;}
+.gauge .mark{position:absolute;top:-4px;width:3px;height:18px;background:#2b2320;border-radius:2px;}
+.gauge-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--sub);margin-bottom:16px;}
+.card{background:var(--card);border-radius:22px;box-shadow:0 10px 30px rgba(20,10,50,.35);padding:22px 20px;margin-bottom:16px;}
+h2.card-title{font-family:Georgia,'Nanum Myeongjo','Batang',serif;font-size:22px;margin:0 0 14px;color:var(--p1-dark);}
+label.field-label{display:block;font-size:14px;font-weight:700;margin:14px 0 6px;color:var(--ink);}
+input[type=text]{width:100%;padding:14px;border-radius:14px;border:1.5px solid #ddd6f5;font-size:16px;background:#faf9ff;}
+input[type=text]:focus{outline:2px solid var(--p1);}
+.chip-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px;}
+.chip{border:1.5px solid #ddd6f5;border-radius:14px;padding:12px;text-align:center;cursor:pointer;background:#faf9ff;transition:.15s;}
+.chip b{display:block;font-size:13px;}
+.chip small{color:var(--sub);font-size:11px;}
+.chip.active{border-color:var(--p1);background:#efeaff;box-shadow:0 0 0 2px rgba(108,92,231,.15) inset;}
+.toggle-row{display:flex;align-items:center;gap:8px;margin:12px 0;font-size:14px;}
+.toggle-row input{width:18px;height:18px;}
+.mode-card{border:1.5px solid #ddd6f5;border-radius:16px;padding:14px 16px;margin-bottom:10px;cursor:pointer;background:#faf9ff;}
+.mode-card.active{border-color:var(--p1);background:#efeaff;box-shadow:0 0 0 2px rgba(108,92,231,.15) inset;}
+.mode-card .mt{font-weight:700;font-size:15px;}
+.mode-card .md{font-size:12px;color:var(--sub);margin-top:2px;}
+.resume-box{background:linear-gradient(90deg,#ffe9b3,#ffd88a);border-radius:16px;padding:16px;margin-bottom:16px;}
+.resume-box b{display:block;font-size:15px;margin-bottom:6px;color:#6b4c00;}
+.pw-change-box{background:#eaf2fb;border-radius:16px;padding:16px;margin-bottom:16px;}
+.pw-change-box b{display:block;font-size:15px;margin-bottom:2px;color:#1a4a7a;}
+.pw-change-box .row2{gap:8px;}
+.pw-change-box input{flex:1;}
+.btn{display:block;width:100%;text-align:center;padding:16px;border-radius:16px;font-weight:800;font-size:16px;border:none;cursor:pointer;text-decoration:none;box-sizing:border-box;}
+.btn-primary{background:linear-gradient(90deg,var(--p1),var(--p1-dark));color:#fff;box-shadow:0 8px 18px rgba(108,92,231,.35);}
+.btn-outline{background:#fff;border:1.6px solid var(--p1);color:var(--p1-dark);}
+.btn-ghost{background:#f1eefc;color:var(--ink);}
+.row2{display:flex;gap:10px;margin-top:10px;}
+.row2 .btn{flex:1;}
+.small-note{font-size:12px;color:var(--sub);text-align:center;margin-top:10px;}
+.tag{display:inline-block;background:#efeaff;color:var(--p1-dark);font-weight:700;font-size:13px;padding:6px 12px;border-radius:20px;margin-bottom:10px;}
+.meta-row{display:flex;justify-content:space-between;font-size:13px;color:var(--sub);margin-bottom:8px;}
+.timerbar-outer{height:8px;background:#ece8fa;border-radius:5px;overflow:hidden;margin-bottom:14px;}
+.timerbar-inner{height:100%;background:linear-gradient(90deg,var(--p1),var(--p2));transition:width 1s linear;}
+.combo-badge{display:inline-block;background:linear-gradient(90deg,#ff7a59,#ff4d4d);color:#fff;font-weight:800;font-size:13px;padding:6px 14px;border-radius:20px;margin-bottom:10px;box-shadow:0 4px 10px rgba(255,77,77,.35);animation:comboPop .25s ease;}
+@keyframes comboPop{0%{transform:scale(.7);opacity:0;}100%{transform:scale(1);opacity:1;}}
+.qtext{font-size:19px;font-weight:700;line-height:1.5;margin:8px 0 14px;}
+.qimg{width:100%;border-radius:14px;margin-bottom:14px;border:1px solid var(--line);display:block;}
+.choice{border:1.6px solid #ddd6f5;border-radius:16px;padding:16px;margin-bottom:10px;font-size:15px;cursor:pointer;background:#faf9ff;}
+.choice.sel{border-color:var(--p2);background:#fff3de;}
+.choice.correct{border-color:var(--good);background:#e7f6ec;}
+.choice.wrong{border-color:#c0392b;background:#fdeceb;}
+.choice.locked{background:#e3e6df;border-color:#c7cdc0;color:#15190f;cursor:not-allowed;}
+.lock-note{font-size:12px;font-weight:700;margin-top:2px;}
+.lock-countdown{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:#f6f4ee;border:3px dashed #d8cfa8;border-radius:18px;padding:10px 14px 14px;margin:4px 0 14px;font-weight:800;color:#a8631a;font-size:14px;transition:.2s;}
+.lock-countdown .num{font-size:64px;font-weight:900;font-family:Georgia,'Nanum Myeongjo','Batang',serif;color:var(--p2-dark);min-width:60px;text-align:center;line-height:1;}
+.lock-countdown .go-emoji{font-size:44px;line-height:1;}
+.lock-countdown.go{color:var(--p1-dark);border-color:var(--p1);background:#efeaff;border-style:solid;}
+.scope-row{display:flex;gap:8px;margin:6px 0 2px;}
+.scope-chip{flex:1;border:1.5px solid #ddd6f5;border-radius:12px;padding:9px 6px;text-align:center;font-size:12.5px;font-weight:700;cursor:pointer;background:#faf9ff;color:var(--sub);}
+.scope-chip.active{border-color:var(--p1);background:#efeaff;color:var(--p1-dark);}
+.hist-item{border:1.5px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:10px;cursor:pointer;background:#faf9ff;}
+.hist-item:active{background:#f1eefc;}
+.hist-top{display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:14px;}
+.hist-sub{font-size:12px;color:var(--sub);margin-top:4px;}
+.explain-box{background:#fdeceb;border-radius:14px;padding:14px 16px;font-size:14px;line-height:1.6;margin:10px 0 16px;}
+.explain-box.right{background:#e7f6ec;}
+.explain-box b{display:block;margin-bottom:6px;font-size:15px;}
+.giveup{display:block;text-align:center;color:var(--sub);font-size:13px;margin-top:14px;text-decoration:underline;cursor:pointer;}
+.score-big{text-align:center;font-family:Georgia,'Nanum Myeongjo','Batang',serif;font-size:54px;font-weight:700;color:var(--p1-dark);margin:6px 0 2px;}
+.score-sub{text-align:center;color:var(--sub);font-size:14px;margin-bottom:14px;}
+.fanfare{text-align:center;font-weight:900;font-size:19px;border-radius:16px;padding:16px;margin:14px 0;}
+.fanfare.f80{background:#fdf2e3;color:#a8631a;}
+.fanfare.f90{background:#efeaff;color:var(--p1-dark);}
+.fanfare.f95{background:#eaf2fb;color:#2266aa;}
+.fanfare.f100{background:linear-gradient(135deg,#ffe27a,#ffb648);color:#6b3d00;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th,td{padding:8px 6px;text-align:center;border-bottom:1px solid var(--line);}
+th{color:var(--sub);font-weight:700;background:#f7f5ff;}
+.tabbar{display:flex;gap:4px;border-bottom:2px solid var(--line);margin-bottom:14px;overflow-x:auto;}
+.tabbtn{flex:1;text-align:center;padding:10px 4px;font-size:13px;font-weight:700;color:var(--sub);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;}
+.tabbtn.active{color:var(--p1-dark);border-color:var(--p1);}
+.warnbox{background:#fdf2e3;border-radius:12px;padding:12px 14px;font-size:12.5px;color:#7a5a1a;margin-bottom:14px;}
+.hidden{display:none !important;}
+.modal-overlay{position:fixed;inset:0;background:rgba(15,10,30,.6);display:flex;align-items:center;justify-content:center;z-index:1200;padding:24px;}
+.modal-overlay.hidden{display:none !important;}
+.modal-box{background:#fff;border-radius:20px;padding:24px 20px;max-width:340px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,.3);}
+.modal-box p{font-size:15px;line-height:1.6;margin:0 0 18px;text-align:center;color:var(--ink);white-space:pre-line;}
+.spinner{display:inline-block;width:32px;height:32px;border:4px solid #e6e0f7;border-top-color:var(--p1);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:10px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.footer-copy{text-align:center;color:#9d97c9;font-size:12px;margin-top:20px;}
+.kbdinput{width:100%;padding:14px;border-radius:14px;border:1.6px solid var(--p1);font-size:16px;margin-bottom:14px;background:#eaf2fb;}
+.wrongitem{border:1.5px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px;}
+.wrongitem .wq{font-weight:700;margin-bottom:6px;}
+.wrongitem .wa{color:var(--good);font-weight:700;font-size:13px;}
+.wrongitem .wu{color:#c0392b;font-size:13px;}
+.stu-row{display:flex;justify-content:space-between;align-items:center;padding:12px 8px;border-bottom:1px solid var(--line);cursor:pointer;}
+.stu-row:active{background:#f7f5ff;}
+.stu-name{font-weight:700;font-size:15px;}
+.stu-meta{font-size:12px;color:var(--sub);margin-top:2px;}
+.stu-score{font-weight:800;color:var(--p1-dark);font-size:15px;}
+@media print{
+  body *{visibility:hidden;}
+  #printArea, #printArea *{visibility:visible;}
+  #printArea{position:absolute;left:0;top:0;width:100%;}
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<div class="modal-overlay hidden" id="modalOverlay">
+  <div class="modal-box">
+    <p id="modalMsg"></p>
+    <div class="row2" id="modalBtns"></div>
+  </div>
+</div>
+
+<script>
+/* ============ 이미지 리소스 (PDF 교과서에서 추출) ============ */
+const IMG={};
+
+/* ============ QUESTION BANK ============ */
+const CATS = [
+{id:'heart', name:'심장의 구조', icon:'❤️'},
+  {id:'vessel', name:'혈관의 종류', icon:'🩸'},
+  {id:'beat', name:'심장박동과 혈압', icon:'💓'},
+  {id:'blood', name:'혈액의 성분', icon:'🧪'},
+  {id:'circ', name:'혈액순환 경로', icon:'🔄'},
+];
+
+function M(c,q,o,a,e,img){return {c,t:'mcq',q,o,a,e,img:img||null};}
+
+const QUESTIONS = [
+M('heart','순환계는 무엇으로 이루어져 있는가?',['동맥, 정맥, 모세혈관','심방, 심실, 판막','혈장, 백혈구, 적혈구','심장, 혈관, 혈액'],3,'순환계는 물질을 운반하는 기관계로 심장, 혈관, 혈액으로 이루어져 있어요.'),
+M('heart','심장은 무엇으로 이루어진 기관인가?',['뼈','지방','신경','근육'],3,'심장은 근육으로 이루어져 있는 주먹만 한 크기의 기관이에요.'),
+M('heart','심장의 크기는 대략 무엇만 한가?',['손바닥','머리','주먹','발바닥'],2,'심장은 주먹만 한 크기의 기관이에요.'),
+M('heart','심장의 위치로 옳은 것은?',['등쪽','가슴 중앙에서 왼쪽으로 치우침','배 중앙','가슴 중앙에서 오른쪽으로 치우침'],1,'심장은 가슴 중앙에서 왼쪽으로 치우쳐 있어요.'),
+M('heart','심장은 몇 개의 심방과 심실로 이루어져 있는가?',['4개씩','3개씩','2개씩','1개씩'],2,'심장은 2개의 심방과 2개의 심실로 이루어져 있으며 판막이 있어요.'),
+M('heart','혈액을 받아들이는 곳으로 정맥과 연결되는 것은?',['판막','동맥','심실','심방'],3,'심방은 혈액을 받아들이는 곳으로 정맥과 연결돼요.'),
+M('heart','혈액을 내보내는 곳으로 동맥과 연결되는 것은?',['심실','판막','심방','정맥'],0,'심실은 혈액을 내보내는 곳으로 동맥과 연결돼요.'),
+M('heart','심실이 심방보다 두껍고 탄력 있는 근육으로 이루어진 이유는?',['강하게 수축하여 혈액을 내보내기 위해','혈액을 저장하기 위해','세균을 잡아먹기 위해','산소를 운반하기 위해'],0,'심실은 심방보다 두껍고 탄력성이 강해 강하게 수축하여 혈액을 내보내기 알맞아요.'),
+M('heart','혈액이 거꾸로 흐르는 것을 막는 구조는?',['판막','모세혈관','혈장','헤모글로빈'],0,'판막은 심방과 심실 사이, 심실과 동맥 사이에 있어 혈액이 거꾸로 흐르는 것을 막아요.'),
+M('heart','판막이 있는 위치로 옳은 것은?',['좌심방과 우심방 사이','심방과 정맥 사이','동맥과 모세혈관 사이','심방과 심실 사이, 심실과 동맥 사이'],3,'판막은 심방과 심실 사이, 심실과 동맥 사이에 있어요.'),
+M('heart','심장에서 혈액이 흐르는 방향으로 옳은 것은?',['심실 → 동맥 → 심방','동맥 → 심실 → 심방','정맥 → 심방 → 동맥(직행)','심방 → 심실 → 동맥'],3,'심장에서 혈액은 심방 → 심실 → 동맥으로만 흘러요.'),
+M('heart','우심방과 연결된 혈관은?',['폐동맥','폐정맥','대동맥','대정맥'],3,'우심방은 온몸을 지나온 혈액을 받아들이며 대정맥과 연결돼요.'),
+M('heart','우심실과 연결된 혈관은?',['폐동맥','대정맥','폐정맥','대동맥'],0,'우심실은 폐로 혈액을 내보내며 폐동맥과 연결돼요.'),
+M('heart','좌심방과 연결된 혈관은?',['대정맥','폐동맥','폐정맥','대동맥'],2,'좌심방은 폐를 지나온 혈액을 받아들이며 폐정맥과 연결돼요.'),
+M('heart','좌심실과 연결된 혈관은?',['폐동맥','대정맥','폐정맥','대동맥'],3,'좌심실은 온몸으로 혈액을 내보내며 대동맥과 연결돼요. 근육이 가장 두꺼워요.'),
+M('heart','온몸을 지나온 혈액을 받아들이는 곳은?',['우심실','좌심방','우심방','좌심실'],2,'우심방이 온몸을 지나온 혈액을 받아들여요.'),
+M('heart','폐를 지나온 혈액을 받아들이는 곳은?',['좌심방','좌심실','우심방','우심실'],0,'좌심방이 폐를 지나온 혈액을 받아들여요.'),
+M('heart','폐로 혈액을 내보내는 곳은?',['좌심실','우심방','좌심방','우심실'],3,'우심실이 폐동맥을 통해 폐로 혈액을 내보내요.'),
+M('heart','온몸으로 혈액을 내보내며 근육이 가장 두꺼운 곳은?',['좌심방','우심방','우심실','좌심실'],3,'좌심실은 온몸으로 혈액을 내보내야 하므로 근육이 가장 두꺼워요.'),
+M('heart','암기법 "혈액은 방실방실 흐른다"에서 심장의 혈액 흐름을 우심방 → ( )의 순서로 쓸 때, 빈칸에 알맞은 말은?',['우심실','좌심실','좌심방','대동맥'],0,'혈액은 우심방→우심실, 좌심방→좌심실 순서로 흘러요.'),
+
+M('vessel','심장에서 나온 혈액이 흐르는 순서로 옳은 것은?',['동맥 → 정맥 → 모세혈관','정맥 → 모세혈관 → 동맥','모세혈관 → 동맥 → 정맥','동맥 → 모세혈관 → 정맥'],3,'심장에서 나온 혈액은 동맥 → 모세혈관 → 정맥 방향으로 흘러요.'),
+M('vessel','심장에서 나오는 혈액이 흐르는 혈관은?',['림프관','정맥','동맥','모세혈관'],2,'동맥은 심장에서 나오는 혈액이 흐르는 혈관이에요.'),
+M('vessel','동맥의 특징으로 옳은 것은?',['하나의 세포층으로 되어 있다','판막이 있다','혈관벽이 두껍고 탄력성이 강하다','혈관벽이 얇고 탄력성이 약하다'],2,'동맥은 혈관벽이 두껍고 탄력성이 강해요.'),
+M('vessel','동맥의 혈관벽이 두껍고 탄력성이 강한 이유는?',['심실에서 나온 혈액의 높은 압력을 견디기 위해','물질교환을 위해','혈압이 낮기 때문','흐르는 속도를 늦추기 위해'],0,'동맥은 심실에서 나온 혈액의 높은 압력(혈압)을 견딜 수 있어야 해요.'),
+M('vessel','심장으로 들어가는 혈액이 흐르는 혈관은?',['동맥','모세혈관','정맥','림프관'],2,'정맥은 심장으로 들어가는 혈액이 흐르는 혈관이에요.'),
+M('vessel','정맥의 특징으로 옳지 않은 것은?',['탄력성이 약하다','혈관벽이 하나의 세포층으로 되어 있다','혈관벽이 동맥보다 얇다','판막이 있다'],1,'혈관벽이 하나의 세포층으로 되어 있는 것은 모세혈관의 특징이에요.'),
+M('vessel','정맥에 판막이 있는 까닭은?',['속도를 빠르게 하기 위해','혈압이 낮아 혈액이 거꾸로 흐르는 것을 막기 위해','혈압이 높아서','물질 교환을 위해'],1,'정맥은 혈압이 낮아 혈액이 거꾸로 흐르는 것을 막기 위해 판막이 있어요.'),
+M('vessel','온몸에 그물처럼 퍼져 있는 가느다란 혈관은?',['동맥','정맥','대동맥','모세혈관'],3,'모세혈관은 온몸에 그물처럼 퍼져 있는 가느다란 혈관이에요.'),
+M('vessel','모세혈관의 역할은?',['동맥과 정맥을 연결한다','산소를 저장한다','세균을 잡아먹는다','혈액을 응고시킨다'],0,'모세혈관은 동맥과 정맥을 연결해요.'),
+M('vessel','모세혈관의 혈관벽 특징으로 옳은 것은?',['세 개의 층으로 되어 있다','탄력성이 가장 강하다','하나의 세포층으로 되어 있어 매우 얇다','판막이 있다'],2,'모세혈관은 혈관벽이 하나의 세포층으로 되어 있어 매우 얇아요.'),
+M('vessel','혈관 중 혈액이 흐르는 속도가 가장 느린 것은?',['동맥','대동맥','모세혈관','정맥'],2,'모세혈관은 혈액이 흐르는 속도가 가장 느려요.'),
+M('vessel','모세혈관이 얇고 느리게 흐르는 것이 유리한 까닭은?',['혈압을 높이기 위해','출혈을 막기 위해','물질 교환이 일어나기에 유리하기 때문','속도를 빠르게 하기 위해'],2,'혈관벽이 얇고 속도가 느려야 조직 세포와 물질 교환이 잘 일어나요.'),
+M('vessel','모세혈관에서 조직 세포로 전달되는 물질은?',['헤모글로빈','이산화 탄소, 노폐물','백혈구','산소, 영양소'],3,'모세혈관에서 산소와 영양소가 조직 세포로 전달돼요.'),
+M('vessel','모세혈관에서 혈액으로 이동하는 물질은?',['이산화 탄소, 노폐물','헤모글로빈','혈소판','산소, 영양소'],0,'조직 세포의 이산화 탄소와 노폐물이 혈액으로 이동해요.'),
+M('vessel','혈관벽의 두께를 비교한 것으로 옳은 것은?',['모세혈관 > 동맥 > 정맥','동맥 > 모세혈관 > 정맥','동맥 > 정맥 > 모세혈관','정맥 > 동맥 > 모세혈관'],2,'혈관벽 두께는 동맥 > 정맥 > 모세혈관 순이에요.'),
+M('vessel','혈압의 크기를 비교한 것으로 옳은 것은?',['동맥 > 모세혈관 > 정맥','모세혈관 > 동맥 > 정맥','동맥 > 정맥 > 모세혈관','정맥 > 모세혈관 > 동맥'],0,'혈압은 동맥 > 모세혈관 > 정맥 순으로 커요.'),
+M('vessel','혈액이 흐르는 속도를 비교한 것으로 옳은 것은?',['동맥 > 정맥 > 모세혈관','동맥 > 모세혈관 > 정맥','정맥 > 동맥 > 모세혈관','모세혈관 > 동맥 > 정맥'],0,'혈액이 흐르는 속도는 동맥 > 정맥 > 모세혈관 순이에요.'),
+M('vessel','혈압이란 무엇인가?',['혈액이 혈관벽에 미치는 압력','혈액의 응고 속도','혈액 속 산소의 양','혈액의 색깔'],0,'혈압은 혈액이 혈관벽에 미치는 압력이에요.'),
+M('vessel','판막이 있는 곳으로 옳게 짝지은 것은?',['정맥, 심장','동맥, 모세혈관','동맥, 심장','모세혈관, 정맥'],0,'판막은 정맥과 심장(심방-심실 사이, 심실-동맥 사이)에 있어요.'),
+M('vessel','심장에서 나온 혈액이 온몸을 돌아 다시 심장으로 들어오기까지 거치는 혈관 순서로 옳은 것은?',['대정맥 → 모세혈관 → 대동맥','폐동맥 → 모세혈관 → 폐정맥','대동맥 → 모세혈관 → 대정맥','모세혈관 → 대동맥 → 대정맥'],2,'대동맥으로 나간 혈액은 온몸의 모세혈관을 거쳐 대정맥으로 돌아와요.'),
+
+M('beat','심장박동의 순서로 옳은 것은?',['이완 → 심실 수축 → 심방 수축','심방과 심실 이완 → 심방 수축 → 심실 수축','심실 수축 → 심방 수축 → 이완','심방 수축 → 이완 → 심실 수축'],1,'심장박동은 이완 → 심방 수축 → 심실 수축 순서로 반복돼요.'),
+M('beat','심방과 심실이 이완할 때 일어나는 일은?',['심장이 멈춘다','판막이 열리며 혈액이 심실로 이동한다','혈액이 동맥으로 나간다','폐나 온몸을 돌고 온 혈액이 정맥을 통해 심장으로 들어온다'],3,'이완할 때는 정맥을 통해 혈액이 심장으로 들어와요.'),
+M('beat','심방이 수축할 때 일어나는 일은?',['정맥의 혈액이 심방으로 들어온다','심방에 있던 혈액이 모두 심실로 들어간다','심실의 혈액이 동맥으로 나간다','심장이 이완한다'],1,'심방 수축 시 심방의 혈액이 모두 심실로 들어가요.'),
+M('beat','심실이 수축할 때 일어나는 일은?',['심방의 혈액이 심실로 들어간다','아무 변화 없다','심실의 혈액이 동맥으로 밀려 나간다','정맥의 혈액이 들어온다'],2,'심실 수축 시 심실의 혈액이 동맥으로 밀려 나가요.'),
+M('beat','심실이 수축할 때 심방과 심실 사이의 판막은 어떻게 되는가?',['사라진다','진동한다','열린다','닫힌다'],3,'심실 수축 시 혈액의 역류를 막기 위해 심방-심실 사이 판막이 닫혀요.'),
+M('beat','심실이 수축할 때 심실과 동맥 사이의 판막은 어떻게 되는가?',['열린다','닫힌다','사라진다','진동한다'],0,'심실 수축 시 혈액이 동맥으로 나가야 하므로 심실-동맥 사이 판막이 열려요.'),
+M('beat','혈압이 최고가 되는 순간은?',['심장이 멈췄을 때','좌심실이 수축하여 혈액이 나올 때','심방이 수축할 때','좌심실이 이완할 때'],1,'좌심실이 수축하여 혈액이 나올 때 최고 혈압이 측정돼요.'),
+M('beat','혈압이 최저가 되는 순간은?',['혈액이 응고될 때','좌심실이 이완할 때','좌심실이 수축할 때','심방이 수축할 때'],1,'좌심실이 이완할 때 최저 혈압이 측정돼요.'),
+M('beat','심장에서 가까울수록 혈압은 어떠한가?',['낮다','일정하다','높다','0이다'],2,'심장에서 가까울수록 혈압이 높아요.'),
+M('beat','심장에서 멀어질수록 혈압은 어떠한가?',['높다','급격히 상승한다','낮다','일정하다'],2,'심장에서 멀어질수록 혈압이 낮아져요.'),
+M('beat','심장박동, 즉 혈액 순환의 원동력이 되는 것은?',['적혈구의 이동','심장의 수축과 이완의 반복','혈소판의 응고','혈장의 흐름'],1,'심장은 수축과 이완을 반복하여 혈액을 순환시켜요. 혈액 순환의 원동력이에요.'),
+M('beat','우심방-우심실 사이 판막이 닫히고 우심실-폐동맥 사이 판막이 열리면 혈액이 이동하는 곳은?',['좌심방','대정맥','폐동맥','대동맥'],2,'우심실이 수축하면 혈액은 폐동맥으로 나가요.'),
+M('beat','심실 수축 시 혈액이 역류하지 않도록 막아 주는 구조는?',['혈장','모세혈관','헤모글로빈','판막'],3,'판막이 혈액의 역류를 막아줘요.'),
+M('beat','심방 수축 후 이어지는 심장박동 단계는?',['심방 이완','심실 수축','혈액 응고','심실 이완'],1,'심방 수축 다음에는 심실 수축이 일어나요.'),
+M('beat','심장박동은 "심방과 심실 이완 → 심방 수축 → ( ) → 다시 이완"의 순서로 반복된다. 빈칸에 알맞은 말은?',['심실 수축','심방 이완','판막 개방','혈압 감소'],0,'심장박동은 이완-심방수축-심실수축이 반복돼요.'),
+
+M('blood','혈액은 어떤 두 가지 성분으로 이루어져 있는가?',['산소와 이산화탄소','동맥혈과 정맥혈','적혈구와 백혈구','혈장과 혈구'],3,'혈액은 액체 성분인 혈장과 세포 성분인 혈구로 이루어져 있어요.'),
+M('blood','혈액에서 액체 성분에 해당하는 것은?',['혈장','혈구','적혈구','백혈구'],0,'혈장이 액체 성분이에요.'),
+M('blood','혈액을 원심분리했을 때 혈장의 비율은 약 몇 %인가?',['75%','55%','35%','15%'],1,'혈장은 약 55%를 차지해요.'),
+M('blood','혈액을 원심분리했을 때 혈구의 비율은 약 몇 %인가?',['45%','85%','25%','65%'],0,'혈구는 약 45%를 차지해요.'),
+M('blood','혈장은 대부분 무엇으로 이루어져 있는가?',['단백질','물','지방','산소'],1,'혈장은 대부분이 물이에요.'),
+M('blood','혈장이 운반하는 물질로 옳지 않은 것은?',['이산화 탄소','산소','노폐물','영양소'],1,'산소는 주로 적혈구(헤모글로빈)가 운반해요. 혈장은 영양소, 이산화 탄소, 노폐물 등을 운반해요.'),
+M('blood','혈구는 어떤 세 가지로 구분되는가?',['적혈구, 백혈구, 혈소판','동맥, 정맥, 모세혈관','혈장, 혈청, 혈구','심방, 심실, 판막'],0,'혈구는 적혈구, 백혈구, 혈소판으로 구분돼요.'),
+M('blood','가운데가 오목한 원반 모양이며 헤모글로빈이 있어 붉은색을 띠는 혈구는?',['적혈구','백혈구','혈장','혈소판'],0,'적혈구는 가운데가 오목한 원반 모양이며 헤모글로빈이 있어 붉은색을 띠어요.'),
+M('blood','혈구 중 가장 크고 모양이 일정하지 않은 것은?',['혈장','혈소판','백혈구','적혈구'],2,'백혈구는 혈구 중 가장 크고 모양이 일정하지 않아요.'),
+M('blood','혈구 중 가장 작고 모양이 일정하지 않은 것은?',['백혈구','혈소판','혈장','적혈구'],1,'혈소판은 혈구 중 가장 작고 모양이 일정하지 않아요.'),
+M('blood','핵이 없는 혈구를 옳게 짝지은 것은?',['적혈구, 백혈구, 혈소판','적혈구, 혈소판','적혈구, 백혈구','백혈구, 혈소판'],1,'적혈구와 혈소판은 핵이 없어요. 백혈구만 핵이 있어요.'),
+M('blood','핵이 있는 혈구는?',['혈소판','백혈구','적혈구','혈장'],1,'백혈구는 핵이 있는 혈구예요.'),
+M('blood','혈구 중 개수가 가장 많은 것은?',['적혈구','혈소판','백혈구','모두 같다'],0,'적혈구가 혈구 중 개수가 가장 많아요.'),
+M('blood','혈구 중 개수가 가장 적은 것은?',['혈소판','모두 같다','백혈구','적혈구'],2,'백혈구가 혈구 중 개수가 가장 적어요.'),
+M('blood','헤모글로빈의 작용으로 산소를 운반하는 혈구는?',['혈소판','적혈구','백혈구','혈장'],1,'적혈구는 헤모글로빈의 작용으로 산소를 운반해요.'),
+M('blood','적혈구가 부족하면 나타날 수 있는 증상은?',['염증','빈혈','출혈이 멎지 않음','감염'],1,'적혈구가 부족하면 빈혈이 생겨요.'),
+M('blood','몸속에 침입한 세균을 잡아먹는 식균 작용을 하는 혈구는?',['적혈구','혈소판','혈장','백혈구'],3,'백혈구는 식균 작용으로 몸속에 침입한 세균을 잡아먹어요.'),
+M('blood','몸속에 세균이 침입하면 어떤 혈구의 수가 증가하는가?',['모두 감소','백혈구','적혈구','혈소판'],1,'세균이 침입하면 백혈구 수가 증가해요.'),
+M('blood','상처가 났을 때 혈액을 응고시켜 출혈을 막는 혈구는?',['적혈구','백혈구','혈장','혈소판'],3,'혈소판은 혈액응고 작용으로 출혈을 막아요.'),
+M('blood','혈소판이 부족하면 나타날 수 있는 문제는?',['산소 부족','지혈이 잘 되지 않음','빈혈','식균작용 저하'],1,'혈소판이 부족하면 지혈이 잘 되지 않아요.'),
+M('blood','혈액이 붉게 보이는 까닭은?',['헤모글로빈이 있는 적혈구가 많아서','혈소판이 응고되어서','백혈구가 많아서','혈장이 붉은색이라서'],0,'붉은색 색소인 헤모글로빈이 있는 적혈구의 수가 많기 때문이에요.'),
+M('blood','헤모글로빈은 산소가 많은 곳(폐)에서 어떻게 되는가?',['산소와 결합한다','산소와 분리된다','사라진다','이산화탄소와 결합한다'],0,'헤모글로빈은 산소가 많은 폐에서는 산소와 결합해요.'),
+M('blood','헤모글로빈은 산소가 적은 곳(조직)에서 어떻게 되는가?',['사라진다','이산화탄소를 방출한다','산소와 결합한다','산소와 분리된다'],3,'헤모글로빈은 산소가 적은 조직에서는 산소와 떨어져요.'),
+M('blood','딱지의 기능으로 옳지 않은 것은?',['지혈 효과','산소를 운반하는 효과','상처 부위의 세균 감염을 막는 효과','상처 부위를 보호하는 효과'],1,'딱지는 지혈 효과와 세균 감염을 막는 효과가 있어요. 산소 운반은 적혈구의 기능이에요.'),
+M('blood','고산 지대에 사는 사람은 평지에 사는 사람보다 이 혈구의 수가 많다. 산소가 부족한 환경에서 효율적으로 산소를 이용하기 위한 이 혈구는?',['적혈구','백혈구','혈소판','혈장'],0,'고산 지대에서는 산소가 부족하므로 적혈구 수가 많아져요.'),
+
+M('circ','심장에서 나간 혈액이 동맥, 모세혈관, 정맥을 거쳐 다시 심장으로 돌아오는 것을 무엇이라 하는가?',['소화','호흡','혈액순환','배설'],2,'이를 혈액순환이라 하며 온몸순환과 허파순환이 있어요.'),
+M('circ','혈액순환의 두 가지 종류는?',['온몸순환과 허파순환','심장순환과 혈관순환','동맥순환과 정맥순환','산소순환과 이산화탄소순환'],0,'혈액순환에는 온몸순환과 허파순환이 있어요.'),
+M('circ','좌심실에서 나간 혈액이 온몸의 모세혈관을 지나 우심방으로 돌아오는 순환 과정은?',['허파순환','모세순환','역순환','온몸순환'],3,'온몸순환: 좌심실 → 온몸의 모세혈관 → 우심방'),
+M('circ','온몸순환에서 조직 세포에 공급되는 물질은?',['이산화 탄소와 노폐물','산소와 영양소','헤모글로빈','백혈구'],1,'온몸순환에서 조직 세포에 산소와 영양소를 공급해요.'),
+M('circ','온몸순환에서 조직 세포로부터 받아오는 물질은?',['혈소판','이산화 탄소와 노폐물','산소와 영양소','헤모글로빈'],1,'온몸순환에서 조직 세포로부터 이산화 탄소와 노폐물을 받아요.'),
+M('circ','우심실에서 나간 혈액이 폐의 모세혈관을 지나 좌심방으로 들어오는 순환 과정은?',['체순환','온몸순환','허파순환','역순환'],2,'허파순환: 우심실 → 폐의 모세혈관 → 좌심방'),
+M('circ','허파순환에서 내보내는 물질은?',['이산화 탄소','산소','노폐물','영양소'],0,'허파순환에서는 이산화 탄소를 내보내요.'),
+M('circ','허파순환에서 받아들이는 물질은?',['이산화 탄소','노폐물','산소','헤모글로빈만'],2,'허파순환에서는 산소를 받아들여요.'),
+M('circ','온몸순환에서 조직 세포에 산소를 공급하고 나면 혈액은 동맥혈에서 무엇으로 바뀌는가?',['림프','정맥혈','동맥혈 그대로','혈장'],1,'온몸순환에서는 동맥혈이 정맥혈로 바뀌어요.'),
+M('circ','허파순환에서 폐에서 산소를 받은 혈액은 정맥혈에서 무엇으로 바뀌는가?',['정맥혈 그대로','림프','동맥혈','혈장'],2,'허파순환에서는 정맥혈이 동맥혈로 바뀌어요.'),
+M('circ','온몸순환의 경로로 옳은 것은?',['좌심방 → 좌심실 → 대동맥','우심방 → 우심실 → 대동맥','우심실 → 폐동맥 → 폐모세혈관 → 폐정맥 → 좌심방','좌심실 → 대동맥 → 온몸모세혈관 → 대정맥 → 우심방'],3,'온몸순환: 좌심실 → 대동맥 → 온몸모세혈관 → 대정맥 → 우심방'),
+M('circ','허파순환의 경로로 옳은 것은?',['좌심실 → 대동맥 → 온몸모세혈관 → 대정맥 → 우심방','좌심방 → 우심방 → 폐','대동맥 → 좌심실 → 폐','우심실 → 폐동맥 → 폐모세혈관 → 폐정맥 → 좌심방'],3,'허파순환: 우심실 → 폐동맥 → 폐모세혈관 → 폐정맥 → 좌심방'),
+M('circ','산소가 많은 혈액을 무엇이라 하는가?',['림프','정맥혈','동맥혈','혈장'],2,'산소가 많은 혈액을 동맥혈이라 해요.'),
+M('circ','산소가 적고 이산화 탄소가 많은 혈액을 무엇이라 하는가?',['정맥혈','혈장','림프','동맥혈'],0,'산소가 적고 이산화 탄소가 많은 혈액을 정맥혈이라 해요.'),
+M('circ','폐동맥에는 어떤 혈액이 흐르는가? (혈관 이름과 혈액 종류가 다른 예외에 유의)',['림프','정맥혈','동맥혈','흐르지 않는다'],1,'폐동맥은 이름은 동맥이지만 우심실에서 나온 산소가 적은 정맥혈이 흘러요.'),
+M('circ','폐정맥에는 어떤 혈액이 흐르는가? (혈관 이름과 혈액 종류가 다른 예외에 유의)',['정맥혈','림프','흐르지 않는다','동맥혈'],3,'폐정맥은 이름은 정맥이지만 폐에서 산소를 받은 동맥혈이 흘러요.'),
+M('circ','대동맥에는 어떤 혈액이 흐르는가?',['정맥혈','흐르지 않는다','동맥혈','반반씩'],2,'대동맥에는 산소가 많은 동맥혈이 흘러요.'),
+M('circ','대정맥에는 어떤 혈액이 흐르는가?',['동맥혈','흐르지 않는다','반반씩','정맥혈'],3,'대정맥에는 산소가 적은 정맥혈이 흘러요.'),
+M('circ','온몸순환과 허파순환이 함께 이루어지면서 혈액이 순환하는 원동력이 되는 것은?',['심장의 수축과 이완','혈소판의 응고','근육의 움직임','폐의 운동'],0,'심장의 수축과 이완이 혈액 순환의 원동력이에요.'),
+M('circ','좌심실에서 나간 혈액이 온몸의 모세혈관을 지나 조직 세포에 산소와 영양소를 주고, 이산화 탄소와 노폐물을 받아 우심방으로 돌아오는 순환은?',['온몸순환','폐순환','림프순환','문맥순환'],0,'좌심실→온몸모세혈관→우심방 경로를 온몸순환이라 해요.'),
+];
+
+/* ============ APP CONFIG ============ */
+const APP_KEY='circ100';      // 이 앱 전용 로컬 저장 키
+const APP_ID='circ100';       // 구글 시트에 기록될 앱 구분자
+const TEACHER_PW='0000';
+const DEFAULT_STUDENT_PW='1234'; // 학생 로그인 기본 비밀번호(강사가 강사용 화면에서 바꿀 수 있어요)
+const GAS_URL='https://script.google.com/macros/s/AKfycbwSAZENNZJ4Y0Vy_wiRRFwv8V13tstEsr5uiTa_VO1KBDXre1D2aBentjviBecP9fsRxQ/exec';  // 이미 배포된 공용 Apps Script 백엔드 (여러 단원 앱이 공유, APP_ID로 구분됨)
+
+function uid(){return 'x'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
+function safeName(n){return (n||'').replace(/[^a-zA-Z0-9가-힣]/g,'');}
+function wait(ms){return new Promise(r=>setTimeout(r,ms));}
+
+/* ============ 학생 로그인 설정(비밀번호 · 로그인 사용 여부) ============
+   구글 시트(Settings 탭)에 강사가 바꾼 값이 저장돼요. 기기가 온라인이면 앱을 열 때마다 최신
+   값을 가져오고, 이 기기에도 캐시해 둬서(다음 접속 시 오프라인이어도 동작) 실패하면 캐시된 값
+   → 그마저 없으면 기본값(비밀번호 1234, 로그인 사용함) 순서로 사용해요. */
+function cachedStudentPwKey(){ return 'studentpw_'+APP_KEY; }
+function cachedLoginEnabledKey(){ return 'loginenabled_'+APP_KEY; }
+let loginConfigCache=null; // 앱 켤 때 한 번만 서버에서 받아오고, 이후에는 이 값을 재사용해요.
+async function getLoginConfig(){
+  if(loginConfigCache) return loginConfigCache;
+  let password=DEFAULT_STUDENT_PW, loginEnabled=true;
+  if(GAS_URL){
+    try{
+      const res=await fetch(GAS_URL+'?action=getPassword&app='+encodeURIComponent(APP_ID));
+      const j=await res.json();
+      if(j && j.ok){
+        if(j.password){ password=j.password; try{ localStorage.setItem(cachedStudentPwKey(), password); }catch(e){} }
+        if(typeof j.loginEnabled==='boolean'){ loginEnabled=j.loginEnabled; try{ localStorage.setItem(cachedLoginEnabledKey(), loginEnabled?'Y':'N'); }catch(e){} }
+        loginConfigCache={password,loginEnabled};
+        return loginConfigCache;
+      }
+    }catch(e){ /* 네트워크 실패 시 아래 캐시/기본값으로 대체 */ }
+  }
+  try{
+    const cachedPw=localStorage.getItem(cachedStudentPwKey());
+    if(cachedPw) password=cachedPw;
+    const cachedLE=localStorage.getItem(cachedLoginEnabledKey());
+    if(cachedLE) loginEnabled=(cachedLE==='Y');
+  }catch(e){}
+  loginConfigCache={password,loginEnabled};
+  return loginConfigCache;
+}
+async function getStudentPassword(){ const c=await getLoginConfig(); return c.password; }
+
+function newSession(){
+  return {name:localStorage.getItem('lastname_'+APP_KEY)||'',cats:[],order:'seq',mode:'full',wrongScope:'all',randomCount:0,
+    list:[],idx:0,correct:0,answers:{},wrong:[],combo:0,maxCombo:0,
+    setSize:20,setIdx:0,selected:null,submitted:false,giveUp:false,
+    lockUntil:0,lockTimerId:null,gsSessionId:null,timeLeft:60,timerId:null};
+}
+let state=newSession();
+
+/* ============ LOCAL STORAGE (내 기기 임시 저장 · 이어풀기용) ============ */
+function sset(key,val){
+  try{ localStorage.setItem(key,JSON.stringify(val)); return true; }catch(e){ return false; }
+}
+function sget(key){
+  try{ const v=localStorage.getItem(key); return v?JSON.parse(v):null; }catch(e){ return null; }
+}
+
+/* ---- 이어풀기(resume): 같은 기기에서 풀다 만 시험을 이어서 풀 수 있도록 진행 상황을 저장 ----
+   일반 모드(전체/집중력/꼼꼼정독)와 오답모드는 저장 슬롯을 서로 분리해요. 그래야 학생이 풀던
+   시험을 마치기 전에 오답모드를 새로 시작해도, 원래 풀던 시험의 이어풀기 기록이 사라지지
+   않고 그대로 남아있어요(반대 경우도 마찬가지). */
+function resumeGroup(mode){ return mode==='wrong' ? 'wrong' : 'normal'; }
+function resumeKey(name, mode){ return 'resume_'+APP_KEY+'_'+safeName(name)+'_'+resumeGroup(mode); }
+function buildResumeSnapshot(){
+  return {
+    name:state.name, cats:state.cats, order:state.order, mode:state.mode, wrongScope:state.wrongScope,
+    list:state.list.map(q=>q._id), idx:state.idx, correct:state.correct, answers:state.answers,
+    wrong:state.wrong, setIdx:state.setIdx, gsSessionId:state.gsSessionId,
+    combo:state.combo||0, maxCombo:state.maxCombo||0, ts:Date.now()
+  };
+}
+function saveResumeSnapshot(){
+  if(!state.name) return;
+  sset(resumeKey(state.name, state.mode), buildResumeSnapshot());
+  // 서버(구글 시트)에도 함께 올려서, 다른 기기에서 같은 이름으로 로그인해도 이어풀기가 되도록 해요.
+  sendProgressToSheet(false);
+}
+function loadResumeSnapshot(name, mode){
+  return sget(resumeKey(name, mode));
+}
+function clearResumeSnapshot(name, mode){
+  try{ localStorage.removeItem(resumeKey(name||state.name, mode!==undefined?mode:state.mode)); }catch(e){}
+}
+/* 이 기기(localStorage)와 서버(구글 시트, 다른 기기에서 남긴 기록) 중 더 최근 것을 고른다. */
+function pickNewerSnapshot(a,b){
+  if(a && b) return (b.ts||0)>(a.ts||0) ? b : a;
+  return a || b || null;
+}
+/* 로그인 직후 한 번 호출해서, 이 학생 이름으로 다른 기기에 남아있는 미완료 시험을 가져온다.
+   구글 시트 Log에는 문제를 하나 풀 때마다(완료 전에도) resume 스냅샷이 함께 저장되어 있다. */
+async function fetchServerResumeSnapshots(name){
+  const empty={normal:null,wrong:null};
+  if(!GAS_URL || !name) return empty;
+  try{
+    const res=await fetch(GAS_URL+'?action=student&app='+encodeURIComponent(APP_ID)+'&name='+encodeURIComponent(name));
+    const data=await res.json();
+    if(!data.ok || !Array.isArray(data.sessions)) return empty;
+    const byGroup={normal:null,wrong:null};
+    data.sessions.forEach(s=>{
+      if(s.finished) return;
+      const r=s.resume;
+      if(!r || !r.list || !r.list.length) return;
+      const g=resumeGroup(r.mode);
+      if(!byGroup[g] || (r.ts||0)>(byGroup[g].ts||0)) byGroup[g]=r;
+    });
+    return byGroup;
+  }catch(e){ return empty; }
+}
+let serverResumeCache={normal:null,wrong:null};
+function resumeFromSnapshot(snap){
+  const list=snap.list.map(id=>questionById(id)).filter(Boolean);
+  if(list.length===0){ clearResumeSnapshot(snap.name, snap.mode); showAlert('이어풀기 기록을 불러올 수 없어요. 처음부터 다시 시작해 주세요.'); return; }
+  state=newSession();
+  state.name=snap.name; state.cats=snap.cats||[]; state.order=snap.order||'seq'; state.mode=snap.mode||'full';
+  state.wrongScope=snap.wrongScope||'all';
+  state.list=list; state.idx=Math.min(snap.idx,list.length); state.correct=snap.correct||0;
+  state.answers=snap.answers||{}; state.wrong=snap.wrong||[]; state.setIdx=snap.setIdx||0;
+  state.combo=snap.combo||0; state.maxCombo=snap.maxCombo||0;
+  state.gsSessionId=snap.gsSessionId||uid();
+  state.selected=null; state.submitted=false;
+  screen='quiz'; render(); startTimerForCurrent();
+}
+
+/* ============ 구글 시트 실시간 전송 ============
+   - 문제를 하나 제출할 때마다(전체를 다 풀지 않아도) 지금까지의 누적 상태를 구글 시트로 보내요.
+     같은 sessionId로 여러 번 보내면 Apps Script 쪽에서 그 줄을 덮어써서(갱신), 이 학생의 이번
+     회차당 딱 한 줄만 남고 계속 최신 상태로 갱신돼요.
+   - Apps Script 웹앱은 브라우저의 사전 확인(preflight) 요청을 처리하지 못하므로, 반드시
+     mode:'no-cors' + Content-Type: text/plain 조합으로 보내야 조용히 막히지 않고 전송돼요. */
+function sendProgressToSheet(finished){
+  if(!GAS_URL) return;
+  try{
+    const payload={
+      app: APP_ID, sessionId: state.gsSessionId, name: state.name, ts: Date.now(),
+      mode: state.mode, cats: state.cats.length?state.cats.map(catName).join(','):'전체',
+      answered: Object.keys(state.answers).length, total: state.list.length,
+      correct: state.correct,
+      score: Object.keys(state.answers).length>0?Math.round(state.correct/Object.keys(state.answers).length*100):0,
+      finished: !!finished,
+      wrong: state.wrong.map(w=>({id:w.id,q:w.q,your:w.your,correct:w.correct})),
+      answers: state.answers, /* {문제id: true/false} 전체 맵. 다른 기기에서 나중에 같은 문제를
+        맞혔는지까지 정확히 반영해 누적 오답을 계산하려면 '틀린 것'만이 아니라 '맞힌 것'까지도
+        알아야 해서 함께 보내요. */
+      resume: finished ? null : buildResumeSnapshot() /* 완료되지 않은 시험만 이어풀기용 스냅샷을
+        함께 보내요. 다른 기기에서 같은 이름으로 로그인하면 이 스냅샷을 받아와 이어풀기를
+        보여줄 수 있어요. */
+    };
+    fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
+  }catch(e){ /* 전송 실패가 퀴즈 진행을 막으면 안 되므로 조용히 무시 */ }
+}
+
+/* 특정 학생의 시험 기록을 구글 시트에서 조회 (다른 기기에서 풀었어도 누적 오답 모드가 동작하도록) */
+async function fetchStudentSessions(name){
+  if(!GAS_URL) return {ok:false, sessions:null};
+  try{
+    const res=await fetch(GAS_URL+'?action=student&app='+encodeURIComponent(APP_ID)+'&name='+encodeURIComponent(name));
+    const j=await res.json();
+    if(j && j.ok) return {ok:true, sessions:j.sessions||[]};
+    return {ok:false, sessions:null};
+  }catch(e){ return {ok:false, sessions:null}; }
+}
+
+/* ============ HELPERS ============ */
+function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function pickByCats(cats){ if(!cats||cats.length===0) return QUESTIONS.slice(); return QUESTIONS.filter(q=>cats.includes(q.c)); }
+function catName(id){const c=CATS.find(x=>x.id===id);return c?c.name:id;}
+function questionById(id){return QUESTIONS.find(q=>q.q+q.c===id || q._id===id);}
+/* 문제에 고유 id를 부여 (배열 인덱스 기반, 안정적) */
+QUESTIONS.forEach((q,i)=>{q._id='q'+i;});
+function questionById(id){return QUESTIONS.find(q=>q._id===id);}
+
+function fmtDate(ts){const d=new Date(ts);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function fmtDT(ts){const d=new Date(ts);return fmtDate(ts)+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+function modeLabel(m){return {full:'전체문제',focus:'집중력 향상',deep:'꼼꼼 정독',wrong:'오답모드'}[m]||m;}
+
+/* ============ MODAL ============ */
+function showAlert(msg){
+  return new Promise(resolve=>{
+    const ov=document.getElementById('modalOverlay');
+    document.getElementById('modalMsg').textContent=msg;
+    document.getElementById('modalBtns').innerHTML=`<button class="btn btn-primary" id="modalOkBtn">확인</button>`;
+    ov.classList.remove('hidden');
+    document.getElementById('modalOkBtn').onclick=()=>{ov.classList.add('hidden');resolve(true);};
+  });
+}
+function showConfirm(msg){
+  return new Promise(resolve=>{
+    const ov=document.getElementById('modalOverlay');
+    document.getElementById('modalMsg').textContent=msg;
+    document.getElementById('modalBtns').innerHTML=`<button class="btn btn-ghost" id="modalCancelBtn">취소</button><button class="btn btn-primary" id="modalOkBtn">확인</button>`;
+    ov.classList.remove('hidden');
+    document.getElementById('modalOkBtn').onclick=()=>{ov.classList.add('hidden');resolve(true);};
+    document.getElementById('modalCancelBtn').onclick=()=>{ov.classList.add('hidden');resolve(false);};
+  });
+}
+/* 옵션이 3개 이상인 선택창(예: 그만풀기 눌렀을 때 저장/채점/계속풀기 중 고르기).
+   options: [{key:'save', label:'...', primary:true}, ...] 순서대로 세로로 쌓아서 보여준다. */
+function showChoice(msg, options){
+  return new Promise(resolve=>{
+    const ov=document.getElementById('modalOverlay');
+    document.getElementById('modalMsg').textContent=msg;
+    document.getElementById('modalBtns').innerHTML=options.map((o,i)=>
+      `<button class="btn ${o.primary?'btn-primary':'btn-outline'}" style="margin-top:${i===0?'0':'8px'};" id="modalChoice${i}">${o.label}</button>`
+    ).join('');
+    document.getElementById('modalBtns').style.flexDirection='column';
+    ov.classList.remove('hidden');
+    options.forEach((o,i)=>{
+      document.getElementById('modalChoice'+i).onclick=()=>{
+        ov.classList.add('hidden');
+        document.getElementById('modalBtns').style.flexDirection='';
+        resolve(o.key);
+      };
+    });
+  });
+}
+function showLoading(msg){
+  const ov=document.getElementById('modalOverlay');
+  document.getElementById('modalMsg').innerHTML=`<span class="spinner"></span><br>${msg}`;
+  document.getElementById('modalBtns').innerHTML='';
+  ov.classList.remove('hidden');
+}
+function hideLoading(){document.getElementById('modalOverlay').classList.add('hidden');}
+
+/* ============ RENDER ROOT ============ */
+let screen='login';
+let pendingResume=null;
+function render(){
+  const app=document.getElementById('app');
+  if(screen==='login') app.innerHTML=renderLogin();
+  else if(screen==='setup') app.innerHTML=renderSetup();
+  else if(screen==='quiz') app.innerHTML=renderQuiz();
+  else if(screen==='setresult') app.innerHTML=renderSetResult();
+  else if(screen==='result') app.innerHTML=renderResult();
+  else if(screen==='wrongnote') app.innerHTML=renderWrongNote();
+  else if(screen==='tlogin') app.innerHTML=renderTeacherLogin();
+  else if(screen==='tdash') app.innerHTML=`<div class="card"><p>불러오는 중...</p></div>`;
+  else if(screen==='tdetail') app.innerHTML=`<div class="card"><p>불러오는 중...</p></div>`;
+  bindEvents();
+}
+
+/* ============ LOGIN SCREEN ============ */
+function renderLogin(){
+  const loginEnabled = !loginConfigCache || loginConfigCache.loginEnabled!==false;
+  return `
+  <div class="hero">
+    <div class="eyebrow">중2과학 6-2단원 순환</div>
+    <h1>순환</h1>
+    <p>심장부터 혈액순환까지, 100제로 완전정복! ${QUESTIONS.length}제로 완전정복!</p>
+  </div>
+  <div class="card">
+    <label class="field-label">🙋 이름(아이디)을 입력해줘</label>
+    <input type="text" id="loginNameInput" placeholder="이름을 입력하세요" value="${state.name}">
+    ${loginEnabled?`
+    <label class="field-label" style="margin-top:14px;">🔑 비밀번호를 입력해줘</label>
+    <input type="text" inputmode="numeric" id="loginPwInput" placeholder="비밀번호 입력" class="kbdinput">
+    <div class="small-note" style="margin-top:-6px;margin-bottom:8px;">선생님이 알려주신 비밀번호를 입력해 주세요.</div>`:''}
+    <button class="btn btn-primary" id="loginBtn">입장하기</button>
+  </div>
+  <div class="footer-copy">© 순환 · 중2과학 6-2단원 순환 ${QUESTIONS.length}제 · build 2026-08</div>
+  `;
+}
+async function attemptLogin(){
+  const nameEl=document.getElementById('loginNameInput');
+  const pwEl=document.getElementById('loginPwInput'); // 로그인 기능이 꺼져 있으면 화면에 없을 수 있어요.
+  const nm=(nameEl?nameEl.value:'').trim();
+  if(!nm){showAlert('이름을 입력해 주세요!');return;}
+  if(!safeName(nm)){showAlert('이름에 특수문자나 공백만 있으면 기록이 저장되지 않아요. 다른 이름으로 입력해 주세요!');return;}
+  const cfg=await getLoginConfig();
+  if(cfg.loginEnabled!==false){
+    const pw=(pwEl?pwEl.value:'').trim();
+    if(!pw){showAlert('비밀번호를 입력해 주세요!');return;}
+    showLoading('확인하고 있어요...');
+    hideLoading();
+    if(pw!==cfg.password){showAlert('비밀번호가 틀렸어요. 선생님께 다시 확인해 주세요!');return;}
+  }
+  state.name=nm;
+  localStorage.setItem('lastname_'+APP_KEY, nm);
+  showLoading('이전 기록을 확인하고 있어요...');
+  serverResumeCache=await fetchServerResumeSnapshots(nm);
+  hideLoading();
+  screen='setup';render();
+}
+
+/* ============ SETUP SCREEN ============ */
+function renderSetup(){
+  const nm=state.name;
+  const localNormal = nm ? loadResumeSnapshot(nm, 'full') : null;
+  const localWrong = nm ? loadResumeSnapshot(nm, 'wrong') : null;
+  const snapNormal = pickNewerSnapshot(localNormal, serverResumeCache.normal);
+  const snapWrong = pickNewerSnapshot(localWrong, serverResumeCache.wrong);
+  function resumeBoxHtml(snap, group){
+    if(!snap) return '';
+    return `
+    <div class="resume-box" data-group="${group}">
+      <b>⏸️ 이어서 풀 수 있는 ${group==='wrong'?'오답모드 ':''}시험이 있어요!</b>
+      <div style="font-size:12.5px;color:#7a5a1a;margin-bottom:10px;">${fmtDT(snap.ts)} · ${modeLabel(snap.mode)} · ${snap.idx}/${snap.list.length}문제까지 풀었어요 (다른 기기 포함)</div>
+      <div class="row2">
+        <button class="btn btn-primary resumeBtn" data-group="${group}">▶️ 이어풀기</button>
+        <button class="btn btn-ghost discardResumeBtn" data-group="${group}">새로 시작</button>
+      </div>
+      <div class="giveup finalizeResumeBtn" data-group="${group}" style="margin-top:10px;">🏁 이어풀지 않고, 여기까지 푼 것으로 점수만 낼래요</div>
+    </div>`;
+  }
+  return `
+  <div class="hero">
+    <div class="eyebrow">중2과학 6-2단원 순환</div>
+    <h1>순환</h1>
+    <p>심장부터 혈액순환까지, 100제로 완전정복! ${QUESTIONS.length}제로 완전정복!</p>
+  </div>
+  <div class="card">
+    <label class="field-label">👋 ${state.name}님, 반가워요!</label>
+    ${resumeBoxHtml(snapNormal,'normal')}
+    ${resumeBoxHtml(snapWrong,'wrong')}
+
+    <label class="field-label">범위를 골라볼까? <span style="font-weight:400;color:var(--sub);font-size:12px;">(아무것도 안 고르면 전체!)</span></label>
+    <div class="chip-grid">
+      ${CATS.map(c=>{
+        const cnt=QUESTIONS.filter(q=>q.c===c.id).length;
+        const active=state.cats.includes(c.id)?'active':'';
+        return `<div class="chip ${active}" data-cat="${c.id}"><b>${c.icon} ${c.name}</b><small>${cnt}문제</small></div>`;
+      }).join('')}
+    </div>
+
+    <div class="toggle-row">
+      <input type="checkbox" id="shuffleChk" ${state.order==='shuffle'?'checked':''}>
+      <label for="shuffleChk">문제 순서 섞기</label>
+    </div>
+    <div class="toggle-row" style="align-items:center;">
+      <input type="checkbox" id="randomCountChk" ${state.randomCount?'checked':''}>
+      <label for="randomCountChk" style="flex:none;">랜덤으로 문제 수 정해서 풀기</label>
+      ${state.randomCount?`<input type="number" id="randomCountInput" min="1" max="${pickByCats(state.cats).length}" value="${Math.min(state.randomCount,pickByCats(state.cats).length)}" style="width:70px;margin-left:8px;padding:8px;border-radius:10px;border:1.5px solid #ddd6f5;">`:''}
+    </div>
+    ${state.randomCount?`<div class="small-note" style="margin-top:-8px;">고른 범위에 문제가 총 ${pickByCats(state.cats).length}개 있어서, 그보다 많이는 정할 수 없어요.</div>`:''}
+
+    <label class="field-label">학습 모드를 골라볼까?</label>
+    <div class="mode-card ${state.mode==='full'?'active':''}" data-mode="full">
+      <div class="mt">📖 전체문제 모드</div><div class="md">고른 범위를 처음부터 끝까지 쭉 이어서 풀어요</div>
+    </div>
+    <div class="mode-card ${state.mode==='focus'?'active':''}" data-mode="focus">
+      <div class="mt">🎯 집중력 향상 모드</div><div class="md">20문제씩 세트로 나눠서 풀어요 (세트마다 쉬어가요)</div>
+    </div>
+    <div class="mode-card ${state.mode==='deep'?'active':''}" data-mode="deep">
+      <div class="mt">🔍 꼼꼼 정독 모드</div><div class="md">문제가 나오면 5초 동안은 보기를 누를 수 없어요</div>
+    </div>
+    <div class="mode-card ${state.mode==='wrong'?'active':''}" data-mode="wrong">
+      <div class="mt">📝 오답 모드</div><div class="md">틀렸던 문제만 섞어서 다시 풀며 확실히 외워요 (다른 기기에서 풀었던 기록도 반영돼요)</div>
+      ${state.mode==='wrong'?`
+      <div class="scope-row" id="scopeRow">
+        <div class="scope-chip ${state.wrongScope==='recent'?'active':''}" data-scope="recent">🕐 최근 시험 오답만</div>
+        <div class="scope-chip ${state.wrongScope==='all'?'active':''}" data-scope="all">📚 여태까지 누적 오답 전체</div>
+      </div>`:''}
+    </div>
+    <div class="small-note">⏱️ 문제당 제한시간 60초가 함께 적용돼요</div>
+
+    <button class="btn btn-primary" id="startBtn" style="margin-top:6px;">시작하기</button>
+    <button class="btn btn-outline" id="teacherBtn" style="margin-top:10px;">📋 강사용 결과 보기</button>
+    <div class="giveup" id="logoutBtn" style="margin-top:6px;">🚪 다른 사람으로 로그인</div>
+    <div class="giveup" id="storageTestBtn" style="margin-top:6px;">🔧 저장 기능 테스트</div>
+  </div>
+  <div class="footer-copy">© 순환 · 중2과학 6-2단원 순환 ${QUESTIONS.length}제 · build 2026-08</div>
+  `;
+}
+
+function startQuiz(mode){
+  if(!state.name){showAlert('이름을 입력해 주세요!');return;}
+  localStorage.setItem('lastname_'+APP_KEY, state.name);
+  state.mode=mode||state.mode;
+  const pool=pickByCats(state.cats);
+  let list;
+  if(state.mode==='wrong'){
+    loadWrongPoolAndStart();
+    return;
+  } else {
+    list=state.order==='shuffle'?shuffle(pool):pool.slice();
+    // 랜덤 문제 수를 정해서 풀기로 했으면, 고른 범위의 실제 문제 수를 넘지 않도록 잘라내요.
+    if(state.randomCount>0){
+      const n=Math.min(state.randomCount, pool.length);
+      list=shuffle(pool).slice(0,n);
+    }
+  }
+  beginList(list);
+}
+
+/* ============ 이 기기에 저장되는 학생별 오답 기록 (이름으로 구분됨) ============
+   구글 시트 연동이 안 되어 있거나 실패했을 때 대신 사용해요. 반드시 '이름'을 키로 저장/조회하므로
+   같은 기기를 여러 학생이 번갈아 써도(새로고침 없이) 서로 다른 학생의 오답이 섞이지 않아요. */
+function localDataKey(name){ return 'localdata_'+APP_KEY+'_'+safeName(name); }
+function getLocalStudentData(name){
+  const d=sget(localDataKey(name));
+  return d || {examLogs:[], wrong:[]};
+}
+function saveLocalExamLog(){
+  if(!state.name) return;
+  const d=getLocalStudentData(state.name);
+  d.examLogs.push({id:state.gsSessionId, ts:Date.now(), mode:state.mode, wrongList:state.wrong.map(w=>({id:w.id,your:w.your}))});
+  if(d.examLogs.length>50) d.examLogs=d.examLogs.slice(d.examLogs.length-50);
+  // 누적 오답 갱신: 이번 시험에서 맞은 문제는 누적 오답에서 제거, 틀린 문제는 추가/갱신
+  state.wrong.forEach(w=>{
+    const exist=d.wrong.find(x=>x.id===w.id);
+    if(exist) exist.your=w.your; else d.wrong.push({id:w.id,your:w.your});
+  });
+  Object.keys(state.answers).forEach(qid=>{
+    if(state.answers[qid]===true) d.wrong=d.wrong.filter(w=>w.id!==qid);
+  });
+  sset(localDataKey(state.name), d);
+}
+
+/* 오답 모드: 구글 시트에 기록된 이 학생의 시험 기록을 우선 사용(다른 기기에서 풀었어도 반영),
+   시트 연동이 안 되어 있거나 실패하면 '이 이름으로' 이 기기에 저장된 기록으로 대체 */
+async function loadWrongPoolAndStart(){
+  showLoading('오답 기록을 불러오고 있어요...');
+  const {ok, sessions}=await fetchStudentSessions(state.name);
+  hideLoading();
+  let wn=[];
+  if(ok && sessions){
+    const sorted=sessions.slice().sort((a,b)=>b.ts-a.ts);
+    if(state.wrongScope==='recent'){
+      if(sorted.length===0){showAlert('아직 제출한 시험 기록이 없어요! 먼저 다른 모드로 시험을 한 번 봐 주세요.');return;}
+      wn=sorted[0].wrong||[];
+      if(wn.length===0){showAlert('가장 최근 시험에서는 틀린 문제가 없었어요! 완벽했네요 🎉');return;}
+    } else {
+      // 시간순(오래된 것 → 최신)으로 훑으면서, 같은 문제를 나중에(다른 기기 포함) 맞혔다면
+      // 그 문제는 더 이상 오답으로 치지 않도록 정리해요. 이렇게 해야 '원래 기기에서 틀렸다가
+      // 이 기기에서 맞힌 문제'가 누적 오답에 계속 남아있는 일이 없어요.
+      const byTimeAsc=sorted.slice().sort((a,b)=>a.ts-b.ts);
+      const wrongMap={};
+      byTimeAsc.forEach(s=>{
+        const wrongIds=new Set((s.wrong||[]).map(w=>w.id));
+        (s.wrong||[]).forEach(w=>{ wrongMap[w.id]=w; });
+        const answers=s.answers||{};
+        Object.keys(answers).forEach(qid=>{
+          if(answers[qid]===true && !wrongIds.has(qid)) delete wrongMap[qid];
+        });
+      });
+      wn=Object.values(wrongMap);
+      if(wn.length===0){
+        if(sorted.length===0) showAlert('아직 본 시험이 없어요! 먼저 다른 모드로 시험을 한 번 봐 주세요.');
+        else showAlert('지금까지 틀렸던 문제를 모두 맞혔어요! 완벽해요 🎉');
+        return;
+      }
+    }
+  } else {
+    // 시트 연동이 안 되어 있으면 '지금 입력한 이름'으로 이 기기에 저장된 기록만 사용
+    // (다른 학생이 방금 전에 이 기기에서 풀었더라도 섞이지 않아요)
+    const d=getLocalStudentData(state.name);
+    const logs=d.examLogs.slice().sort((a,b)=>b.ts-a.ts);
+    if(state.wrongScope==='recent'){
+      if(logs.length===0){
+        showAlert(GAS_URL?'아직 이 이름으로 제출한 시험 기록이 없어요! 먼저 다른 모드로 시험을 한 번 봐 주세요.':'⚠️ 구글 시트 연동 주소(GAS_URL)가 설정되지 않아 이 기기에서 이 이름으로 남긴 기록만 사용해요. 아직 기록이 없어요!');
+        return;
+      }
+      wn=logs[0].wrongList||[];
+      if(wn.length===0){showAlert('가장 최근 시험에서는 틀린 문제가 없었어요! 완벽했네요 🎉');return;}
+    } else {
+      wn=d.wrong.slice();
+      if(wn.length===0){
+        showAlert(GAS_URL?(logs.length===0?'아직 이 이름으로 제출한 시험 기록이 없어요! 먼저 다른 모드로 시험을 한 번 봐 주세요.':'지금까지 틀렸던 문제를 모두 맞혔어요! 완벽해요 🎉'):'⚠️ 구글 시트 연동 주소(GAS_URL)가 설정되지 않아 이 기기에서 이 이름으로 남긴 기록만 사용해요. 아직 기록이 없어요!');
+        return;
+      }
+    }
+  }
+  const ids=[...new Set(wn.map(w=>w.id))];
+  let list=QUESTIONS.filter(q=>ids.includes(q._id));
+  list=shuffle(list);
+  if(list.length===0){showAlert('오답 문제를 찾을 수 없어요. 문제 은행이 갱신되었을 수 있어요.');return;}
+  beginList(list);
+}
+
+function beginList(list){
+  clearResumeSnapshot(state.name);
+  state.list=list;
+  state.idx=0;state.correct=0;state.wrong=[];state.answers={};
+  state.setIdx=0;state.selected=null;state.submitted=false;state.giveUp=false;
+  state.gsSessionId=uid();
+  screen='quiz';
+  render();
+  startTimerForCurrent();
+}
+
+/* ============ QUIZ SCREEN ============ */
+function currentQ(){return state.list[state.idx];}
+
+function renderQuiz(){
+  const q=currentQ();
+  if(!q) return renderResult();
+  const total=state.list.length;
+  const timePct=Math.max(0,state.timeLeft/60*100);
+  const submittedInfo=state.submitted?state.lastResult:null;
+  const isLocked=state.mode==='deep' && !state.submitted && Date.now()<state.lockUntil;
+  const choicesHtml=q.o.map((opt,i)=>{
+    let cls='choice';
+    if(state.submitted){
+      if(i===q.a) cls+=' correct';
+      else if(i===state.selected) cls+=' wrong';
+    } else if(isLocked){
+      cls+=' locked';
+    } else if(state.selected===i){
+      cls+=' sel';
+    }
+    return `<div class="${cls}" data-idx="${i}">${['①','②','③','④'][i]} ${opt}</div>`;
+  }).join('');
+  let feedback='';
+  if(state.submitted){
+    const ok=submittedInfo.ok;
+    feedback=`<div class="explain-box ${ok?'right':''}"><b>${ok?'정답이에요! 🎉':'아쉬워요! 다시 확인해볼까요?'}</b>${q.e}</div>`;
+  }
+  return `
+  <div class="card">
+    <div class="tag">${catName(q.c)}</div>
+    <div class="meta-row"><span>${state.idx+1} / ${total}</span><span>맞은 개수 ${state.correct}</span></div>
+    <div class="meta-row"><span style="font-weight:700;color:var(--p1-dark);">${state.timeLeft}초</span><span></span></div>
+    <div class="timerbar-outer"><div class="timerbar-inner" style="width:${timePct}%;"></div></div>
+    ${state.mode==='deep' && !state.submitted ? renderLockCountdown(isLocked) : ''}
+    ${(state.combo||0)>=2?`<div class="combo-badge">🔥 ${state.combo}연속 정답!</div>`:''}
+    <div class="qtext">Q${state.idx+1}. ${q.q}</div>
+    ${q.img && IMG[q.img] ? `<img class="qimg" src="${IMG[q.img]}" alt="참고 그림">` : ''}
+    <div id="choicesWrap">${choicesHtml}</div>
+    ${feedback}
+    ${state.submitted?
+      `<button class="btn btn-primary" id="nextBtn">${state.idx===total-1?'결과 보기':'다음 문제'}</button>`
+      :`<button class="btn btn-primary" id="submitBtn">답안 제출</button>`}
+    <div class="giveup" id="giveupBtn">🚪 그만 풀래요</div>
+  </div>`;
+}
+
+function renderLockCountdown(isLocked){
+  const remain=Math.max(1,Math.ceil((state.lockUntil-Date.now())/1000));
+  if(isLocked){
+    return `<div class="lock-countdown wait" id="lockCountdown"><div class="num">${remain}</div><div>🔒 문제를 꼼꼼히 읽어보세요! (초 후 선택 가능)</div></div>`;
+  }
+  return `<div class="lock-countdown go" id="lockCountdown"><div class="go-emoji">🔓</div><div>이제 보기를 선택할 수 있어요!</div></div>`;
+}
+function updateLockUI(){
+  if(state.mode!=='deep' || state.submitted) return;
+  const el=document.getElementById('lockCountdown');
+  if(!el) return;
+  const remain=Math.max(0,Math.ceil((state.lockUntil-Date.now())/1000));
+  if(remain>0){
+    el.className='lock-countdown wait';
+    el.innerHTML=`<div class="num">${remain}</div><div>🔒 문제를 꼼꼼히 읽어보세요! (초 후 선택 가능)</div>`;
+    document.querySelectorAll('.choice').forEach(c=>c.classList.add('locked'));
+  } else {
+    el.className='lock-countdown go';
+    el.innerHTML=`<div class="go-emoji">🔓</div><div>이제 보기를 선택할 수 있어요!</div>`;
+    document.querySelectorAll('.choice').forEach(c=>c.classList.remove('locked'));
+  }
+}
+
+function startTimerForCurrent(){
+  clearInterval(state.timerId);clearInterval(state.lockTimerId);
+  state.timeLeft=60;
+  if(state.mode==='deep'){
+    state.lockUntil=Date.now()+5000;
+    updateLockUI();
+    state.lockTimerId=setInterval(()=>{
+      updateLockUI();
+      if(Date.now()>=state.lockUntil){clearInterval(state.lockTimerId);}
+    },200);
+  }
+  state.timerId=setInterval(()=>{
+    state.timeLeft--;
+    if(state.timeLeft<=0){clearInterval(state.timerId);autoSubmitTimeout();return;}
+    const bar=document.querySelector('.timerbar-inner');if(bar)bar.style.width=Math.max(0,state.timeLeft/60*100)+'%';
+    const el=document.querySelector('.meta-row span[style]');if(el)el.textContent=state.timeLeft+'초';
+  },1000);
+}
+function autoSubmitTimeout(){ if(!state.submitted){handleSubmit(true);} }
+
+function handleSubmit(timeout){
+  clearInterval(state.timerId);
+  const q=currentQ();
+  let ok=false;
+  if(timeout && state.selected==null){ ok=false; }
+  else { ok=state.selected===q.a; }
+  state.submitted=true;
+  state.lastResult={ok};
+  state.answers[q._id]=ok;
+  if(ok){
+    state.correct++;
+    state.combo=(state.combo||0)+1;
+    state.maxCombo=Math.max(state.maxCombo||0,state.combo);
+  }
+  else {
+    state.combo=0;
+    state.wrong=state.wrong.filter(w=>w.id!==q._id);
+    state.wrong.push({id:q._id,q:q.q,your:state.selected!=null?q.o[state.selected]:'(제출 안함)',correct:q.o[q.a],explain:q.e,cat:q.c});
+  }
+  render();
+  saveResumeSnapshot();
+}
+
+function goNext(){
+  state.idx++;
+  state.selected=null;state.submitted=false;
+  if(state.idx>=state.list.length){ finishQuiz(); return; }
+  if(state.mode==='focus' && state.idx>0 && state.idx%state.setSize===0){
+    screen='setresult';render();return;
+  }
+  render();
+  startTimerForCurrent();
+}
+
+function renderSetResult(){
+  const doneInSet=Math.min(state.idx,state.list.length);
+  return `
+  <div class="card" style="text-align:center;">
+    <h2 class="card-title">🎯 세트 완료!</h2>
+    <p>지금까지 ${doneInSet}문제 중 ${state.correct}문제를 맞혔어요.</p>
+    <button class="btn btn-primary" id="nextSetBtn">다음 세트 시작</button>
+    <div class="giveup" id="giveupSetBtn" style="margin-top:12px;">🚪 그만 풀래요</div>
+  </div>`;
+}
+
+let isFinalizing=false;
+function finishQuiz(){
+  if(isFinalizing) return; isFinalizing=true;
+  clearInterval(state.timerId);clearInterval(state.lockTimerId);
+  finalizeAndShowResult(false); isFinalizing=false;
+}
+function giveUp(){
+  if(isFinalizing) return; isFinalizing=true;
+  clearInterval(state.timerId);clearInterval(state.lockTimerId);
+  finalizeAndShowResult(true); isFinalizing=false;
+}
+/* '그만 풀래요'를 눌렀을 때 점수를 내지 않고 저장만 해두고 메인 화면으로 나가는 경로.
+   saveResumeSnapshot()이 이미 매 문제 제출마다 로컬+서버(구글시트)에 저장해 두므로, 한 번 더
+   저장을 확실히 한 뒤 화면만 나간다. 나중에 이 이름으로 다시 들어오면(다른 기기 포함) 이어풀기로
+   뜬다. */
+function saveForLaterAndExit(){
+  saveResumeSnapshot();
+  clearInterval(state.timerId);clearInterval(state.lockTimerId);
+  screen='setup'; render();
+}
+/* 그만 풀래요 버튼을 누르면 세 가지 중 하나를 고르게 한다:
+   1) 저장하고 나중에 이어풀기, 2) 지금까지 푼 것만 채점하기, 3) 계속 풀래요(취소). */
+async function handleGiveUpTap(){
+  if(isFinalizing) return;
+  const choice=await showChoice('정말 그만 풀까요?',[
+    {key:'save', label:'💾 저장하고 나중에 이어풀기', primary:false},
+    {key:'grade', label:'📊 지금까지 푼 것만 채점하기', primary:true},
+    {key:'continue', label:'▶️ 계속 풀래요', primary:false}
+  ]);
+  if(choice==='save') saveForLaterAndExit();
+  else if(choice==='grade') giveUp();
+  // choice==='continue' 또는 그 외: 아무것도 하지 않고 계속 풀던 화면 그대로 둔다.
+}
+function finalizeAndShowResult(gaveUp){
+  state.giveUp=gaveUp;
+  const answeredCount=Object.keys(state.answers).length;
+  const totalCount=state.list.length;
+  const score100 = answeredCount>0 ? Math.round((state.correct/answeredCount)*100) : 0;
+  state.finalScore=score100; state.finalAnswered=answeredCount; state.finalTotal=totalCount;
+  state.finalPct=totalCount>0?answeredCount/totalCount:0;
+  clearResumeSnapshot(state.name);
+  saveLocalExamLog();
+  sendProgressToSheet(true);
+  screen='result';
+  render();
+}
+
+function fanfareTier(score,pct){
+  if(pct<0.6){
+    if(score>=90) return {tier:'f90',msg:'잘했어요! 최고예요! 👏 다음엔 모든 문제를 풀면 더 좋아요!'};
+    if(score>=80) return {tier:'f80',msg:'고생했어요! 🌱 다음엔 모든 문제를 풀면 더 좋아요!'};
+    return null;
+  }
+  if(score>=100) return {tier:'f100',msg:'🎉🎉 당신은 우주 박사! 존경합니다! 🎉🎉'};
+  if(score>=95) return {tier:'f95',msg:'너무너무 잘했어요! 당신은 별과 우주 전문가! ⭐'};
+  if(score>=90) return {tier:'f90',msg:'잘했어요! 최고예요! 👏'};
+  if(score>=80) return {tier:'f80',msg:'고생했어요! 🌱'};
+  return null;
+}
+
+function renderResult(){
+  const s=state.finalScore,ans=state.finalAnswered,tot=state.finalTotal,pct=state.finalPct;
+  const fan=fanfareTier(s,pct);
+  const gaugePos=Math.min(100,Math.max(0,s));
+  return `
+  <div class="card" style="text-align:center;">
+    ${state.giveUp?`<div class="warnbox">⚠️ ${tot}문제 중 ${ans}문제만 풀고 제출했어요</div>`:''}
+    <div class="score-big">${s}<span style="font-size:22px;">점</span></div>
+    <div class="score-sub">맞은 개수 ${state.correct} / ${tot} · 정답률 ${ans>0?Math.round(state.correct/ans*100):0}%</div>
+    ${(state.maxCombo||0)>=2?`<div class="score-sub">🔥 최고 연속 정답 ${state.maxCombo}개</div>`:''}
+    <div class="gauge"><div class="mark" style="left:${gaugePos}%;"></div></div>
+    <div class="gauge-labels"><span>노력 중</span><span>좋아요</span><span>완벽 마스터</span></div>
+    ${fan?`<div class="fanfare ${fan.tier}">${fan.msg}</div>`:`<div class="fanfare f80">🌱 괜찮아요, 틀린 문제를 다시 보면 금방 늘어요!</div>`}
+    <button class="btn btn-outline" id="wrongNoteBtn" style="margin-top:16px;">🚫 틀린 문제 오답노트 보기</button>
+    <div class="row2">
+      <button class="btn btn-ghost" id="backHomeBtn">처음으로</button>
+      <button class="btn btn-ghost" id="retryBtn">다시 풀기</button>
+    </div>
+  </div>`;
+}
+
+function renderWrongNote(){
+  const items=state.wrong;
+  return `
+  <div class="card" id="printArea">
+    <h2 class="card-title">📝 오답노트 · ${state.name}</h2>
+    <div style="font-size:12px;color:var(--sub);margin:-8px 0 12px;">${fmtDT(Date.now())}</div>
+    ${items.length===0?'<p>이번 시험에서 틀린 문제가 없어요! 완벽해요 🎉</p>':
+    items.map((w,i)=>`<div class="wrongitem"><div class="wq">${i+1}. ${w.q}</div>
+      <div class="wu">내가 쓴 답: ${w.your}</div>
+      <div class="wa">정답: ${w.correct}</div>
+      <div style="font-size:12.5px;color:var(--sub);margin-top:4px;">${w.explain}</div></div>`).join('')}
+  </div>
+  <button class="btn btn-primary" id="pdfBtn">📄 오답노트 PDF 만들기 (저장·인쇄)</button>
+  <div class="small-note">💡 이 오답은 구글 시트에도 함께 저장돼요. 다른 기기에서도 '오답 모드'로 다시 풀 수 있어요.</div>
+  <button class="btn btn-ghost" id="backResultBtn" style="margin-top:10px;">결과로 돌아가기</button>
+  `;
+}
+
+/* ============ PDF 생성/인쇄 (html2canvas + jsPDF) ============ */
+let lastPdfBlobUrl=null;
+let lastPdfFilename=null;
+function buildPrintClone(sourceNode,title){
+  const clone=document.createElement('div');
+  clone.className='pdf-clone';
+  clone.style.cssText='position:fixed;left:-9999px;top:0;width:760px;background:#ffffff;padding:26px 30px;font-family:"Noto Sans KR",sans-serif;box-sizing:border-box;';
+  const style=document.createElement('style');
+  style.textContent=`
+    .pdf-clone .card-title{font-size:18px;margin:0 0 4px;color:#4834b0;font-family:Georgia,'Nanum Myeongjo','Batang',serif;}
+    .pdf-clone .wrongitem{border:1px solid #e6e0f7;border-radius:8px;padding:10px 12px;margin-bottom:8px;}
+    .pdf-clone .wq{font-size:12.5px;font-weight:700;margin-bottom:4px;line-height:1.45;color:#211d3a;}
+    .pdf-clone .wu{font-size:11px;color:#c0392b;}
+    .pdf-clone .wa{font-size:11px;color:#2e8b57;font-weight:700;}
+    .pdf-clone .wrongitem > div:last-child{font-size:10.5px;color:#7a76a3;margin-top:3px;line-height:1.45;}
+  `;
+  clone.appendChild(style);
+  const inner=document.createElement('div');
+  inner.innerHTML=sourceNode.innerHTML;
+  clone.appendChild(inner);
+  document.body.appendChild(clone);
+  return clone;
+}
+async function generateWrongNotePDF(filenamePrefix){
+  const node=document.getElementById('printArea');
+  if(!node) return;
+  if(!window.html2canvas || !(window.jspdf&&window.jspdf.jsPDF)){
+    await showAlert('PDF 기능을 불러오는 중이에요. 인터넷 연결을 확인한 뒤 잠시 후 다시 시도해 주세요.');
+    return;
+  }
+  showLoading('PDF를 만들고 있어요...');
+  let clone=null;
+  try{
+    clone=buildPrintClone(node);
+    await new Promise(r=>setTimeout(r,30));
+    const canvas=await html2canvas(clone,{scale:2,backgroundColor:'#ffffff',useCORS:true,windowWidth:800});
+    const imgData=canvas.toDataURL('image/jpeg',0.92);
+    const {jsPDF}=window.jspdf;
+    const pdf=new jsPDF('p','mm','a4');
+    const pdfFilename=`${safeName(filenamePrefix||state.name)||'학생'}-오답노트-${fmtDate(Date.now())}.pdf`;
+    pdf.setProperties({title:pdfFilename});
+    const pageWidth=pdf.internal.pageSize.getWidth();
+    const pageHeight=pdf.internal.pageSize.getHeight();
+    const imgWidth=pageWidth;
+    const imgHeight=canvas.height*imgWidth/canvas.width;
+    let heightLeft=imgHeight;
+    let position=0;
+    pdf.addImage(imgData,'JPEG',0,position,imgWidth,imgHeight);
+    heightLeft-=pageHeight;
+    while(heightLeft>0){
+      position=heightLeft-imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData,'JPEG',0,position,imgWidth,imgHeight);
+      heightLeft-=pageHeight;
+    }
+    if(lastPdfBlobUrl){ try{URL.revokeObjectURL(lastPdfBlobUrl);}catch(e){} }
+    lastPdfBlobUrl=pdf.output('bloburl');
+    lastPdfFilename=pdfFilename;
+    hideLoading();
+    showPdfReadyModal();
+  }catch(e){
+    hideLoading();
+    await showAlert('PDF를 만드는 중 문제가 발생했어요. 인터넷 연결을 확인하고 다시 시도해 주세요.');
+  } finally {
+    if(clone && clone.parentNode) clone.parentNode.removeChild(clone);
+  }
+}
+function showPdfReadyModal(){
+  const ov=document.getElementById('modalOverlay');
+  document.getElementById('modalMsg').innerHTML='📄 PDF가 준비됐어요!<br>아래 버튼을 <b>직접 눌러서</b> 저장하거나 열어 주세요.';
+  const btns=document.getElementById('modalBtns');
+  btns.style.flexDirection='column';
+  btns.innerHTML=`
+    <a href="${lastPdfBlobUrl}" download="${lastPdfFilename}" class="btn btn-primary" style="margin-bottom:8px;">⬇️ PDF 다운로드</a>
+    <a href="${lastPdfBlobUrl}" class="btn btn-outline" style="margin-bottom:8px;">📄 PDF 열어서 보기 · 인쇄</a>
+    <button class="btn btn-ghost" id="modalCloseBtn">닫기</button>
+  `;
+  ov.classList.remove('hidden');
+  document.getElementById('modalCloseBtn').onclick=()=>{ov.classList.add('hidden');btns.style.flexDirection='';};
+}
+function printNow(){ window.print(); }
+
+/* ============ 강사용(교사용) 화면 ============ */
+function renderTeacherLogin(){
+  return `
+  <div class="card" style="text-align:center;">
+    <h2 class="card-title">🔒 강사용 로그인</h2>
+    <input type="text" inputmode="numeric" id="pwInput" placeholder="비밀번호 입력" class="kbdinput">
+    <button class="btn btn-primary" id="pwSubmit">확인</button>
+    <button class="btn btn-ghost" id="pwCancel" style="margin-top:10px;">취소</button>
+  </div>`;
+}
+
+async function renderTeacherDashAsync(){
+  const app=document.getElementById('app');
+  app.innerHTML=`<div class="card"><p>불러오는 중...</p></div>`;
+  if(!GAS_URL){
+    app.innerHTML=`<div class="card"><h2 class="card-title">📋 강사용 결과 화면</h2><p style="color:var(--sub);font-size:13px;">⚠️ 아직 구글 시트 연동 주소가 설정되지 않았어요. 코드 상단의 <code>GAS_URL</code> 값에 배포된 Apps Script 웹앱 주소를 붙여넣어 주세요.</p><button class="btn btn-ghost" id="backHomeBtn" style="margin-top:10px;">돌아가기</button></div>`;
+    document.getElementById('backHomeBtn').onclick=()=>{screen='setup';render();};
+    return;
+  }
+  try{
+    const res=await fetch(GAS_URL+'?action=all&app='+encodeURIComponent(APP_ID));
+    const j=await res.json();
+    if(!j || !j.ok) throw new Error('bad response');
+    const students=j.students||[];
+    loginConfigCache=null; // 강사가 방금 값을 바꿨을 수도 있으니 대시보드 열 때마다 최신값을 다시 받아와요.
+    const cfg=await getLoginConfig();
+    app.innerHTML=`
+    <div class="card">
+      <h2 class="card-title">📋 강사용 결과 화면</h2>
+      <div class="pw-change-box">
+        <div class="toggle-row" style="margin-bottom:${cfg.loginEnabled?'10px':'0'};">
+          <input type="checkbox" id="loginEnabledChk" ${cfg.loginEnabled?'checked':''}>
+          <label for="loginEnabledChk" style="flex:none;"><b>🔐 학생 로그인(이름+비밀번호) 사용</b></label>
+        </div>
+        ${cfg.loginEnabled?`
+        <div style="font-size:12.5px;color:#7a5a1a;margin:4px 0 8px;">현재 비밀번호: <b>${cfg.password}</b> · 바꾸면 학생들에게 새 비밀번호를 알려주세요.</div>
+        <div class="row2">
+          <input type="text" inputmode="numeric" id="newPwInput" placeholder="새 비밀번호" class="kbdinput" style="margin-bottom:0;">
+          <button class="btn btn-primary" id="savePwBtn" style="white-space:nowrap;">저장</button>
+        </div>`:`
+        <div style="font-size:12.5px;color:#7a5a1a;">꺼져 있으면 학생들은 이름만 입력하면 바로 들어갈 수 있어요(비밀번호를 묻지 않아요).</div>`}
+      </div>
+      <p style="font-size:13px;color:var(--sub);margin-bottom:10px;">총 ${students.length}명의 학생 기록이에요. 이름을 눌러 자세히 볼 수 있어요.</p>
+      ${students.length===0?'<p>아직 제출된 기록이 없어요.</p>':
+      students.map(s=>`<div class="stu-row" data-name="${s.name}">
+        <div><div class="stu-name">${s.name}</div><div class="stu-meta">응시 ${s.count}회 · 최근 ${fmtDT(s.last)}</div></div>
+        <div class="stu-score">${s.avg}점</div>
+      </div>`).join('')}
+      <button class="btn btn-outline" id="refreshBtn" style="margin-top:16px;">🔄 새로고침</button>
+      <button class="btn btn-ghost" id="backHomeBtn" style="margin-top:10px;">돌아가기</button>
+    </div>`;
+    document.querySelectorAll('.stu-row').forEach(el=>{
+      el.onclick=()=>showTeacherDetail(el.dataset.name);
+    });
+    document.getElementById('refreshBtn').onclick=()=>renderTeacherDashAsync();
+    document.getElementById('backHomeBtn').onclick=()=>{screen='setup';render();};
+    document.getElementById('loginEnabledChk').onchange=async (e)=>{
+      const enabled=e.target.checked;
+      showLoading('저장하고 있어요...');
+      try{
+        await fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},
+          body:JSON.stringify({type:'setLoginEnabled', app:APP_ID, enabled:enabled})});
+        try{ localStorage.setItem(cachedLoginEnabledKey(), enabled?'Y':'N'); }catch(err){}
+        loginConfigCache=null;
+        hideLoading();
+        renderTeacherDashAsync();
+      }catch(err){
+        hideLoading();
+        showAlert('저장에 실패했어요. 잠시 후 다시 시도해 주세요.');
+        e.target.checked=!enabled;
+      }
+    };
+    const savePwBtn=document.getElementById('savePwBtn');
+    if(savePwBtn) savePwBtn.onclick=async ()=>{
+      const v=(document.getElementById('newPwInput').value||'').trim();
+      if(!v){showAlert('새 비밀번호를 입력해 주세요!');return;}
+      showLoading('저장하고 있어요...');
+      try{
+        await fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},
+          body:JSON.stringify({type:'setPassword', app:APP_ID, password:v})});
+        try{ localStorage.setItem(cachedStudentPwKey(), v); }catch(e){}
+        loginConfigCache=null;
+        hideLoading();
+        await showAlert('비밀번호가 바뀌었어요! 학생들에게 새 비밀번호("'+v+'")를 알려주세요.');
+        renderTeacherDashAsync();
+      }catch(e){
+        hideLoading();
+        showAlert('저장에 실패했어요. 잠시 후 다시 시도해 주세요.');
+      }
+    };
+  }catch(e){
+    app.innerHTML=`<div class="card"><h2 class="card-title">📋 강사용 결과 화면</h2><p style="color:#c0392b;">구글 시트를 불러오지 못했어요. Apps Script 배포 주소(GAS_URL)와 배포 설정("액세스 권한: 모든 사용자")을 확인한 뒤 새로고침해 주세요.</p><button class="btn btn-outline" id="retryDashBtn" style="margin-top:10px;">🔄 다시 시도</button><button class="btn btn-ghost" id="backHomeBtn" style="margin-top:10px;">돌아가기</button></div>`;
+    document.getElementById('retryDashBtn').onclick=()=>renderTeacherDashAsync();
+    document.getElementById('backHomeBtn').onclick=()=>{screen='setup';render();};
+  }
+}
+
+async function showTeacherDetail(name){
+  const app=document.getElementById('app');
+  app.innerHTML=`<div class="card"><p>불러오는 중...</p></div>`;
+  const {ok, sessions}=await fetchStudentSessions(name);
+  if(!ok){
+    app.innerHTML=`<div class="card"><p>학생 기록을 불러오지 못했어요.</p><button class="btn btn-ghost" id="backDashBtn" style="margin-top:10px;">목록으로</button></div>`;
+    document.getElementById('backDashBtn').onclick=()=>{screen='tdash';render();renderTeacherDashAsync();};
+    return;
+  }
+  const sorted=sessions.slice().sort((a,b)=>b.ts-a.ts);
+  const latest=sorted[0];
+  // 시간순으로 훑으면서, 같은 문제를 나중에 맞혔다면 오답 목록에서 빼고, 아직 틀린 채로
+  // 남아있는 문제에는 '마지막으로 틀린 날짜'를 함께 기록해요(강사가 언제 틀렸는지 알 수 있게).
+  const byTimeAsc=sorted.slice().sort((a,b)=>a.ts-b.ts);
+  const wrongMap={};
+  byTimeAsc.forEach(s=>{
+    const wrongIds=new Set((s.wrong||[]).map(w=>w.id));
+    (s.wrong||[]).forEach(w=>{ wrongMap[w.id]={...w, lastWrongTs:s.ts}; });
+    const answers=s.answers||{};
+    Object.keys(answers).forEach(qid=>{
+      if(answers[qid]===true && !wrongIds.has(qid)) delete wrongMap[qid];
+    });
+  });
+  const allWrong=Object.values(wrongMap).sort((a,b)=>(b.lastWrongTs||0)-(a.lastWrongTs||0));
+  app.innerHTML=`
+  <div class="card" id="printArea">
+    <h2 class="card-title">📋 ${name}님의 기록</h2>
+    <p style="font-size:13px;color:var(--sub);">총 ${sorted.length}회 응시 · 최근 점수 ${latest?latest.score:'-'}점 (${latest?fmtDT(latest.ts):''})</p>
+    <table style="margin:10px 0 16px;">
+      <tr><th>일시</th><th>모드</th><th>점수</th><th>맞음/전체</th></tr>
+      ${sorted.map(s=>`<tr><td>${fmtDT(s.ts)}</td><td>${modeLabel(s.mode)}</td><td>${s.score}점</td><td>${s.correct}/${s.total}</td></tr>`).join('')}
+    </table>
+    <h2 class="card-title" style="font-size:16px;">🚫 누적 오답 (${allWrong.length}개)</h2>
+    <div style="font-size:12px;color:var(--sub);margin:-6px 0 10px;">${name} · 이 화면을 보는 시각: ${fmtDT(Date.now())}</div>
+    ${allWrong.length===0?'<p>틀린 문제가 없어요! 완벽해요 🎉</p>':
+    allWrong.map((w,i)=>`<div class="wrongitem"><div class="wq">${i+1}. ${w.q}</div>
+      <div class="wu">학생이 쓴 답: ${w.your}</div>
+      <div class="wa">정답: ${w.correct}</div>
+      <div class="wu" style="color:var(--sub);">마지막으로 틀린 날짜: ${w.lastWrongTs?fmtDT(w.lastWrongTs):'-'}</div></div>`).join('')}
+  </div>
+  <div class="row2">
+    <button class="btn btn-primary" id="printDetailBtn">🖨️ 인쇄하기</button>
+    <button class="btn btn-outline" id="pdfDetailBtn">💾 PDF로 저장</button>
+  </div>
+  <button class="btn btn-ghost" id="backDashBtn" style="margin-top:10px;">목록으로</button>
+  `;
+  document.getElementById('printDetailBtn').onclick=()=>printNow();
+  document.getElementById('pdfDetailBtn').onclick=()=>generateWrongNotePDF(name+'-강사용');
+  document.getElementById('backDashBtn').onclick=()=>{screen='tdash';render();renderTeacherDashAsync();};
+}
+
+/* ============ EVENT BINDING ============ */
+function bindEvents(){
+  if(screen==='login'){
+    document.getElementById('loginBtn').onclick=()=>{attemptLogin();};
+    const pwEl=document.getElementById('loginPwInput');
+    if(pwEl) pwEl.onkeydown=(e)=>{ if(e.key==='Enter') attemptLogin(); };
+    const nmEl=document.getElementById('loginNameInput');
+    if(nmEl) nmEl.onkeydown=(e)=>{ if(e.key==='Enter') document.getElementById('loginPwInput').focus(); };
+    return;
+  }
+  if(screen==='setup'){
+    function resolvedResumeSnapshot(group){
+      const local=loadResumeSnapshot(state.name, group==='wrong'?'wrong':'full');
+      const server=serverResumeCache[group==='wrong'?'wrong':'normal'];
+      return pickNewerSnapshot(local, server);
+    }
+    document.querySelectorAll('.resumeBtn').forEach(btn=>{
+      btn.onclick=()=>{
+        const snap=resolvedResumeSnapshot(btn.dataset.group);
+        if(snap) resumeFromSnapshot(snap);
+      };
+    });
+    document.querySelectorAll('.discardResumeBtn').forEach(btn=>{
+      btn.onclick=()=>{
+        const group=btn.dataset.group;
+        clearResumeSnapshot(state.name, group==='wrong'?'wrong':'full');
+        if(group==='wrong') serverResumeCache.wrong=null; else serverResumeCache.normal=null;
+        render();
+      };
+    });
+    document.querySelectorAll('.finalizeResumeBtn').forEach(btn=>{
+      btn.onclick=()=>{
+        const snap=resolvedResumeSnapshot(btn.dataset.group);
+        if(!snap) return;
+        resumeFromSnapshot(snap);
+        giveUp();
+      };
+    });
+    document.querySelectorAll('.chip').forEach(c=>{
+      c.onclick=()=>{
+        const id=c.dataset.cat;
+        if(state.cats.includes(id)) state.cats=state.cats.filter(x=>x!==id);
+        else state.cats.push(id);
+        if(state.randomCount>0){
+          const poolLen=pickByCats(state.cats).length;
+          state.randomCount=Math.min(state.randomCount,poolLen)||1;
+        }
+        render();
+      };
+    });
+    document.getElementById('shuffleChk').onchange=(e)=>{state.order=e.target.checked?'shuffle':'seq';};
+    document.getElementById('randomCountChk').onchange=(e)=>{
+      if(e.target.checked){
+        const poolLen=pickByCats(state.cats).length;
+        state.randomCount=Math.min(20,poolLen)||1;
+      } else {
+        state.randomCount=0;
+      }
+      render();
+    };
+    const rcInput=document.getElementById('randomCountInput');
+    if(rcInput) rcInput.onchange=(e)=>{
+      const poolLen=pickByCats(state.cats).length;
+      let v=parseInt(e.target.value,10)||1;
+      v=Math.max(1,Math.min(v,poolLen)); // 고른 범위의 총 문제 수를 넘지 않도록 여기서 한 번 더 막아요.
+      state.randomCount=v;
+      render();
+    };
+    document.querySelectorAll('.mode-card').forEach(m=>{
+      m.onclick=(e)=>{
+        if(e.target.closest('.scope-chip')) return;
+        state.mode=m.dataset.mode;render();
+      };
+    });
+    document.querySelectorAll('.scope-chip').forEach(c=>{
+      c.onclick=(e)=>{e.stopPropagation();state.wrongScope=c.dataset.scope;render();};
+    });
+    document.getElementById('startBtn').onclick=()=>{startQuiz(state.mode);};
+    document.getElementById('teacherBtn').onclick=()=>{screen='tlogin';render();};
+    document.getElementById('logoutBtn').onclick=async ()=>{
+      const ok=await showConfirm('다른 사람으로 로그인할까요? (지금 이름은 로그아웃돼요)');
+      if(!ok) return;
+      state.name='';
+      screen='login'; render();
+    };
+    document.getElementById('storageTestBtn').onclick=()=>{
+      const testKey='storagetest_'+APP_KEY;
+      const ok1=sset(testKey,{ping:Date.now()});
+      const ok2=ok1 && sget(testKey);
+      showAlert(ok1&&ok2?'✅ 이 기기의 저장 기능이 정상 작동해요! (이어풀기에 사용돼요)':'❌ 이 기기에서 저장 기능을 사용할 수 없어요. 시크릿 모드이거나 저장 공간이 부족할 수 있어요.');
+    };
+  }
+  else if(screen==='quiz'){
+    if(!state.submitted){
+      document.querySelectorAll('.choice').forEach(c=>{
+        c.onclick=()=>{
+          if(state.mode==='deep' && Date.now()<state.lockUntil){return;}
+          state.selected=parseInt(c.dataset.idx);render();
+        };
+      });
+      const sb=document.getElementById('submitBtn');
+      if(sb) sb.onclick=async()=>{
+        if(state.mode==='deep' && Date.now()<state.lockUntil){showAlert('아직 5초가 지나지 않았어요!');return;}
+        if(state.selected===null || state.selected===undefined){
+          const ok=await showConfirm('답을 선택하지 않았어요. 그래도 제출할까요?');
+          if(!ok){return;}
+        }
+        handleSubmit(false);
+      };
+    } else {
+      document.getElementById('nextBtn').onclick=()=>goNext();
+    }
+    document.getElementById('giveupBtn').onclick=()=>handleGiveUpTap();
+  }
+  else if(screen==='setresult'){
+    document.getElementById('nextSetBtn').onclick=()=>{render();startTimerForCurrent();};
+    document.getElementById('giveupSetBtn').onclick=()=>handleGiveUpTap();
+  }
+  else if(screen==='result'){
+    document.getElementById('wrongNoteBtn').onclick=()=>{screen='wrongnote';render();};
+    document.getElementById('backHomeBtn').onclick=()=>{const nm=state.name;state=newSession();state.name=nm;screen='setup';render();};
+    document.getElementById('retryBtn').onclick=()=>{const nm=state.name;const cats=state.cats;const ord=state.order;const md=state.mode;state=newSession();state.name=nm;state.cats=cats;state.order=ord;state.mode=md;screen='setup';render();};
+  }
+  else if(screen==='wrongnote'){
+    document.getElementById('pdfBtn').onclick=()=>generateWrongNotePDF();
+    document.getElementById('backResultBtn').onclick=()=>{screen='result';render();};
+  }
+  else if(screen==='tlogin'){
+    document.getElementById('pwSubmit').onclick=()=>{
+      const v=document.getElementById('pwInput').value;
+      if(v===TEACHER_PW){screen='tdash';render();renderTeacherDashAsync();}
+      else showAlert('비밀번호가 틀렸어요.');
+    };
+    document.getElementById('pwCancel').onclick=()=>{screen='setup';render();};
+  }
+}
+
+/* 앱을 처음 열 때, 로그인 기능이 켜져 있는지(비밀번호 필요 여부)를 먼저 확인한 뒤 첫 화면을
+   그려요. 그래야 로그인 화면에 비밀번호 입력칸을 보여줄지 말지를 깜빡임 없이 바로 정할 수 있어요. */
+(async function initApp(){
+  await getLoginConfig();
+  render();
+})();
+</script>
+</body>
+</html>
