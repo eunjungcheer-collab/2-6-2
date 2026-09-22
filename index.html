@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>순환 100제</title>
+<title>순환 134제</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
@@ -144,9 +144,11 @@ const CATS = [
   {id:'beat', name:'심장박동과 혈압', icon:'💓'},
   {id:'blood', name:'혈액의 성분', icon:'🧪'},
   {id:'circ', name:'혈액순환 경로', icon:'🔄'},
+  {id:'oxreason', name:'OX 함정문장 찾기', icon:'🎯'},
 ];
 
 function M(c,q,o,a,e,img){return {c,t:'mcq',q,o,a,e,img:img||null};}
+function OX(c,q,isTrue,reasons,ra,e){return {c,t:'ox2',q,isTrue,reasons:reasons||[],ra:(ra===undefined?null:ra),e};}
 
 const QUESTIONS = [
 M('heart','순환계는 무엇으로 이루어져 있는가?',['동맥, 정맥, 모세혈관','심방, 심실, 판막','혈장, 백혈구, 적혈구','심장, 혈관, 혈액'],3,'순환계는 물질을 운반하는 기관계로 심장, 혈관, 혈액으로 이루어져 있어요.'),
@@ -253,6 +255,146 @@ M('circ','대동맥에는 어떤 혈액이 흐르는가?',['정맥혈','흐르�
 M('circ','대정맥에는 어떤 혈액이 흐르는가?',['동맥혈','흐르지 않는다','반반씩','정맥혈'],3,'대정맥에는 산소가 적은 정맥혈이 흘러요.'),
 M('circ','온몸순환과 허파순환이 함께 이루어지면서 혈액이 순환하는 원동력이 되는 것은?',['심장의 수축과 이완','혈소판의 응고','근육의 움직임','폐의 운동'],0,'심장의 수축과 이완이 혈액 순환의 원동력이에요.'),
 M('circ','좌심실에서 나간 혈액이 온몸의 모세혈관을 지나 조직 세포에 산소와 영양소를 주고, 이산화 탄소와 노폐물을 받아 우심방으로 돌아오는 순환은?',['온몸순환','폐순환','림프순환','문맥순환'],0,'좌심실→온몸모세혈관→우심방 경로를 온몸순환이라 해요.'),
+
+/* ============ OX 함정문장 찾기 ============ */
+OX("oxreason",'우심방은 폐정맥과 연결되어 있고, 좌심방은 대정맥과 연결되어 있다.',false,[
+  '우심방은 폐정맥이 아니라 대정맥과 연결되고, 좌심방은 대정맥이 아니라 폐정맥과 연결되기 때문',
+  '심방이 아니라 심실이 정맥과 직접 연결되기 때문',
+  '우심방과 좌심방은 모두 동맥과 연결되기 때문'
+],0,'우심방은 온몸을 지나온 혈액을 받아들이는 대정맥과, 좌심방은 폐를 지나온 혈액을 받아들이는 폐정맥과 연결돼요.'),
+OX("oxreason",'심실은 심방보다 벽이 얇고 탄력성이 약하다.',false,[
+  '심실과 심방의 벽 두께는 항상 같기 때문',
+  '심실은 심방보다 벽이 두껍고 탄력성이 강하기 때문',
+  '심방이 동맥과 직접 연결되어 있어서 두껍기 때문'
+],1,'심실은 혈액을 힘차게 내보내야 하므로 심방보다 벽이 두껍고 탄력성이 강해요.'),
+OX("oxreason",'좌심실은 폐동맥과 연결되어 온몸으로 혈액을 내보낸다.',false,[
+  '좌심실이 아니라 우심실이 온몸으로 혈액을 보내기 때문',
+  '좌심실은 혈액을 내보내지 않고 받아들이기만 하기 때문',
+  '좌심실은 폐동맥이 아니라 대동맥과 연결되기 때문'
+],2,'좌심실은 대동맥과 연결되어 온몸으로 혈액을 내보내며, 심장에서 근육이 가장 두꺼워요.'),
+OX("oxreason",'심실과 심방 사이, 심실과 동맥 사이에는 판막이 있어 혈액이 거꾸로 흐르는 것을 막는다.',true,[],null,'판막은 심방과 심실 사이, 심실과 동맥 사이에 있어 혈액의 역류를 막아줘요.'),
+OX("oxreason",'정맥은 동맥보다 혈관벽이 두껍고 탄력성이 강하다.',false,[
+  '정맥이 아니라 동맥의 혈관벽이 더 두껍고 탄력성이 강하기 때문',
+  '정맥에는 판막이 없어서 얇아 보이는 것뿐이기 때문',
+  '정맥과 동맥은 혈관벽 두께가 항상 같기 때문'
+],0,'동맥은 심실에서 나온 혈액의 높은 압력을 견뎌야 하므로 정맥보다 혈관벽이 두껍고 탄력성이 강해요.'),
+OX("oxreason",'모세혈관은 혈관벽이 여러 겹의 세포층으로 되어 있어 두껍다.',false,[
+  '모세혈관에는 판막이 있어 두꺼워 보이기 때문',
+  '모세혈관은 여러 겹이 아니라 하나의 세포층으로 되어 있어 얇기 때문',
+  '모세혈관이 동맥보다 혈압이 높기 때문'
+],1,'모세혈관은 혈관벽이 하나의 세포층으로 되어 있어 매우 얇아요.'),
+OX("oxreason",'혈압은 정맥에서 가장 높고 모세혈관, 동맥 순으로 낮아진다.',false,[
+  '혈압은 심장에서 멀어질수록 항상 높아지기 때문',
+  '혈압은 세 혈관에서 모두 같기 때문',
+  '혈압은 정맥이 아니라 동맥에서 가장 높고, 모세혈관, 정맥 순으로 낮아지기 때문'
+],2,'혈압은 동맥 > 모세혈관 > 정맥 순으로 낮아져요.'),
+OX("oxreason",'혈액이 흐르는 속도는 모세혈관에서 가장 빠르다.',false,[
+  '모세혈관은 속도가 가장 빠른 것이 아니라 가장 느리기 때문',
+  '모세혈관은 판막이 있어 속도가 빨라지기 때문',
+  '모세혈관이 동맥과 정맥보다 혈관벽이 두껍기 때문'
+],0,'모세혈관은 혈액이 흐르는 속도가 가장 느려서 조직 세포와 물질 교환이 잘 일어나요.'),
+OX("oxreason",'모세혈관은 혈관벽이 한 층의 세포로 되어 있어 물질 교환에 유리하다.',true,[],null,'모세혈관은 얇은 벽과 느린 속도 덕분에 조직 세포와 산소·영양소·이산화 탄소·노폐물을 주고받기 유리해요.'),
+OX("oxreason",'심실이 수축할 때 심방과 심실 사이의 판막은 열린다.',false,[
+  '심실 수축 시 심실과 동맥 사이 판막도 함께 닫히기 때문',
+  '심실이 수축할 때는 심방과 심실 사이 판막이 오히려 닫히기 때문',
+  '심실이 수축해도 판막은 전혀 움직이지 않기 때문'
+],1,'심실이 수축할 때는 혈액이 심방으로 역류하지 않도록 심방-심실 사이 판막이 닫히고, 심실-동맥 사이 판막이 열려요.'),
+OX("oxreason",'혈압이 최고가 되는 순간은 좌심실이 이완할 때이다.',false,[
+  '혈압은 심방이 수축할 때 최고가 되기 때문',
+  '혈압은 판막이 열릴 때만 최고가 되기 때문',
+  '좌심실이 이완할 때가 아니라 수축하여 혈액을 내보낼 때 혈압이 최고가 되기 때문'
+],2,'좌심실이 수축하여 혈액이 대동맥으로 나갈 때 혈압이 최고가 돼요.'),
+OX("oxreason",'혈구 중 개수가 가장 많은 것은 백혈구이다.',false,[
+  '백혈구가 아니라 적혈구의 개수가 가장 많기 때문',
+  '백혈구는 핵이 없어서 개수를 셀 수 없기 때문',
+  '혈구 중에서는 혈소판의 개수가 가장 많기 때문'
+],0,'혈구 중 개수가 가장 많은 것은 적혈구이며, 백혈구는 오히려 개수가 가장 적어요.'),
+OX("oxreason",'백혈구는 핵이 없고 혈소판은 핵이 있다.',false,[
+  '적혈구도 핵을 가지고 있기 때문',
+  '백혈구는 핵이 있고, 혈소판은 핵이 없기 때문',
+  '혈구는 모두 핵이 없기 때문'
+],1,'혈구 중 핵이 있는 것은 백혈구뿐이며, 적혈구와 혈소판은 핵이 없어요.'),
+OX("oxreason",'적혈구는 식균 작용으로 몸에 침입한 세균을 잡아먹는다.',false,[
+  '적혈구는 세균과 결합하지 않는 성질이 있기 때문',
+  '적혈구는 핵이 없어 세균을 인식하지 못하기 때문',
+  '식균 작용을 하는 것은 적혈구가 아니라 백혈구이기 때문'
+],2,'몸속에 침입한 세균을 잡아먹는 식균 작용을 하는 것은 백혈구예요.'),
+OX("oxreason",'적혈구는 헤모글로빈이 있어 산소를 운반하며, 산소가 많은 곳에서는 헤모글로빈이 산소와 결합한다.',true,[],null,'헤모글로빈은 산소가 많은 폐에서는 산소와 결합하고, 산소가 적은 조직에서는 산소와 분리돼요.'),
+OX("oxreason",'온몸순환은 우심실에서 나간 혈액이 폐의 모세혈관을 지나 좌심방으로 돌아오는 과정이다.',false,[
+  '그 경로는 온몸순환이 아니라 허파순환(우심실 → 폐의 모세혈관 → 좌심방)이기 때문',
+  '온몸순환은 우심방에서부터 시작되기 때문',
+  '온몸순환은 폐를 거치지 않고 심장 안에서만 끝나기 때문'
+],0,'그 설명은 허파순환의 경로이며, 온몸순환은 좌심실 → 대동맥 → 온몸의 모세혈관 → 대정맥 → 우심방 순서로 진행돼요.'),
+OX("oxreason",'대정맥에는 산소가 많은 동맥혈이 흐른다.',false,[
+  '대정맥은 혈액이 흐르지 않는 혈관이기 때문',
+  '대정맥에는 동맥혈이 아니라 산소가 적은 정맥혈이 흐르기 때문',
+  '대정맥은 폐를 지난 혈액만 운반하는 혈관이기 때문'
+],1,'대정맥에는 온몸을 돌면서 산소를 내준 정맥혈이 흘러요.'),
+OX("oxreason",'폐동맥에는 이름은 동맥이지만 산소가 적은 정맥혈이 흐른다.',true,[],null,'폐동맥은 우심실에서 폐로 나가는 혈관이라 이름은 동맥이지만, 그 안에는 산소가 부족한 정맥혈이 흘러요.'),
+OX("oxreason",'심장에서 근육이 가장 두꺼운 곳은 우심실이다.',false,[
+  '우심실이 아니라 좌심실의 근육이 가장 두껍기 때문',
+  '네 개의 심장 방(심방·심실) 근육 두께는 모두 같기 때문',
+  '심실보다 심방의 근육이 더 두껍기 때문'
+],0,'심장에서는 온몸으로 강하게 혈액을 내보내야 하는 좌심실의 근육이 가장 두꺼워요.'),
+OX("oxreason",'심실은 혈액이 심장으로 들어오는 곳이고, 심방은 심장 밖으로 혈액을 내보내는 곳이다.',false,[
+  '심실과 심방은 모두 혈액을 내보내기만 하기 때문',
+  '반대로 심방이 혈액을 받아들이고, 심실이 혈액을 내보내는 곳이기 때문',
+  '심실과 심방의 역할은 사람마다 다르게 나타나기 때문'
+],1,'심방은 혈액을 받아들이는 곳이고, 심실은 심장에서 혈액을 내보내는 곳이에요.'),
+OX("oxreason",'심장에는 혈액의 역류를 막는 판막이 총 2개만 존재한다.',false,[
+  '판막은 동맥과 정맥 사이에서만 발견되기 때문',
+  '심장에는 판막이 하나도 존재하지 않기 때문',
+  '심방과 심실 사이에 2개, 심실과 동맥 사이에 2개, 총 4개의 판막이 있기 때문'
+],2,'심장에는 심방-심실 사이 2개, 심실-동맥 사이 2개, 모두 4개의 판막이 있어요.'),
+OX("oxreason",'세 혈관의 벽 두께를 비교하면 동맥이 가장 얇고 모세혈관이 가장 두껍다.',false,[
+  '반대로 동맥이 가장 두껍고 모세혈관이 가장 얇기 때문',
+  '세 혈관의 벽 두께는 모두 동일하기 때문',
+  '모세혈관은 판막이 있어 두꺼워지기 때문'
+],0,'혈관벽 두께는 동맥 > 정맥 > 모세혈관 순으로 두꺼워요.'),
+OX("oxreason",'정맥은 혈압이 낮아 혈액이 거꾸로 흐를 수 있기 때문에 군데군데 판막이 있지만, 동맥에는 판막이 없다.',true,[],null,'정맥은 혈압이 낮아 역류를 막는 판막이 발달해 있고, 동맥은 심실과 가까워 혈압이 높아 따로 판막이 없어요.'),
+OX("oxreason",'혈구 중 크기가 가장 큰 것은 적혈구이다.',false,[
+  '크기가 가장 큰 혈구는 혈소판이기 때문',
+  '적혈구가 아니라 백혈구가 혈구 중 크기가 가장 크기 때문',
+  '세 혈구의 크기는 모두 같기 때문'
+],1,'혈구 중 크기가 가장 큰 것은 백혈구이고, 가장 작은 것은 혈소판이에요.'),
+OX("oxreason",'혈소판은 혈구 중 크기가 가장 크다.',false,[
+  '혈소판이 아니라 적혈구가 혈구 중 가장 크기 때문',
+  '혈소판은 핵이 있어서 크게 보일 뿐이기 때문',
+  '혈소판이 아니라 백혈구가 가장 크며, 혈소판은 오히려 크기가 가장 작기 때문'
+],2,'혈소판은 혈구 중 크기가 가장 작고 모양이 일정하지 않으며 핵이 없어요.'),
+OX("oxreason",'혈장은 대부분 물로 이루어져 있으며 영양소, 이산화 탄소, 노폐물 등 여러 물질을 운반한다.',true,[],null,'혈장은 약 90%가 물이며, 영양소와 이산화 탄소, 노폐물 등을 녹여서 운반해요.'),
+OX("oxreason",'혈액을 현미경으로 관찰하면 혈소판이 가장 뚜렷하게 관찰된다.',false,[
+  '혈소판이 아니라 개수가 많고 색소가 있는 적혈구가 가장 뚜렷하게 관찰되기 때문',
+  '혈소판은 김사액에 의해 특히 진하게 염색되기 때문',
+  '혈액에는 혈소판만 들어 있기 때문'
+],0,'혈소판은 크기가 작고 핵이 없어 관찰이 어렵고, 적혈구가 가장 많고 뚜렷하게 보여요.'),
+OX("oxreason",'혈액 관찰 실험에서 김사액은 적혈구의 색을 더 붉게 물들이는 역할을 한다.',false,[
+  '김사액은 혈소판을 응고시키는 역할을 하기 때문',
+  '김사액은 적혈구가 아니라 백혈구의 핵을 보라색으로 염색하는 역할을 하기 때문',
+  '김사액은 색을 입히지 않고 혈구를 투명하게 만들기 때문'
+],1,'김사액은 백혈구의 핵을 보라색으로 염색해 현미경으로 잘 관찰되게 해줘요.'),
+OX("oxreason",'심장에는 심방과 심실 사이에 2개, 심실과 동맥 사이에 2개, 총 4개의 판막이 있다.',true,[],null,'심장의 네 곳에 있는 판막은 혈액이 거꾸로 흐르지 않도록 막아줘요.'),
+OX("oxreason",'허파순환은 좌심실에서 시작되어 온몸을 거친 뒤 우심방으로 돌아온다.',false,[
+  '그 경로는 폐가 아니라 온몸을 거치므로 허파순환이 아니기 때문',
+  '허파순환은 심장 밖으로 전혀 나가지 않기 때문',
+  '허파순환은 좌심실이 아니라 우심실에서 시작해 폐를 거쳐 좌심방으로 돌아오기 때문'
+],2,'허파순환 경로는 우심실 → 폐동맥 → 폐의 모세혈관 → 폐정맥 → 좌심방이에요.'),
+OX("oxreason",'동맥혈은 폐동맥과 대정맥에 흐르고, 정맥혈은 대동맥과 폐정맥에 흐른다.',false,[
+  '반대로 동맥혈은 폐정맥과 대동맥에 흐르고, 정맥혈은 대정맥과 폐동맥에 흐르기 때문',
+  '동맥혈과 정맥혈은 혈관의 이름과 관계없이 무작위로 흐르기 때문',
+  '폐동맥과 대정맥에는 혈액이 흐르지 않기 때문'
+],0,'이름과 달리 폐동맥에는 정맥혈이, 폐정맥에는 동맥혈이 흘러요. 동맥혈은 폐정맥과 대동맥에, 정맥혈은 대정맥과 폐동맥에 흘러요.'),
+OX("oxreason",'허파순환은 혈액 속의 이산화 탄소를 몸 밖으로 내보내고 산소를 받아오는 과정이다.',true,[],null,'허파순환을 거치며 혈액은 폐에서 이산화 탄소를 내보내고 산소를 공급받아요.'),
+OX("oxreason",'혈액이 온몸순환과 허파순환을 거쳐 순환하는 원동력은 혈관의 수축과 이완이다.',false,[
+  '혈액은 압력 없이 스스로 이동하므로 원동력이 필요 없기 때문',
+  '혈관이 아니라 심장의 수축과 이완이 혈액 순환의 원동력이기 때문',
+  '혈관은 수축과 이완 운동을 전혀 하지 않기 때문'
+],1,'혈액 순환의 원동력은 심장의 규칙적인 수축과 이완이에요.'),
+OX("oxreason",'온몸순환에서 혈액은 조직 세포로부터 산소와 영양소를 받고, 조직 세포에 이산화 탄소를 전달한다.',false,[
+  '온몸순환에서는 혈액과 조직 세포 사이에 물질 교환이 일어나지 않기 때문',
+  '조직 세포는 스스로 산소를 만들어 내기 때문',
+  '반대로 혈액이 조직 세포에 산소와 영양소를 주고, 조직 세포로부터 이산화 탄소와 노폐물을 받기 때문'
+],2,'온몸순환에서 혈액은 조직 세포에 산소와 영양소를 주고, 이산화 탄소와 노폐물을 받아와요.'),
 ];
 
 /* ============ APP CONFIG ============ */
@@ -302,7 +444,7 @@ async function getStudentPassword(){ const c=await getLoginConfig(); return c.pa
 function newSession(){
   return {name:localStorage.getItem('lastname_'+APP_KEY)||'',cats:[],order:'seq',mode:'full',wrongScope:'all',randomCount:0,
     list:[],idx:0,correct:0,answers:{},wrong:[],combo:0,maxCombo:0,
-    setSize:20,setIdx:0,selected:null,submitted:false,giveUp:false,
+    setSize:20,setIdx:0,selected:null,submitted:false,giveUp:false,ox2Stage:1,
     lockUntil:0,lockTimerId:null,gsSessionId:null,timeLeft:60,timerId:null};
 }
 let state=newSession();
@@ -505,7 +647,7 @@ function renderLogin(){
   <div class="hero">
     <div class="eyebrow">중2과학 6-2단원 순환</div>
     <h1>순환</h1>
-    <p>심장부터 혈액순환까지, 100제로 완전정복! ${QUESTIONS.length}제로 완전정복!</p>
+    <p>심장부터 혈액순환까지, OX 함정문장까지! ${QUESTIONS.length}제로 완전정복!</p>
   </div>
   <div class="card">
     <label class="field-label">🙋 이름(아이디)을 입력해줘</label>
@@ -565,7 +707,7 @@ function renderSetup(){
   <div class="hero">
     <div class="eyebrow">중2과학 6-2단원 순환</div>
     <h1>순환</h1>
-    <p>심장부터 혈액순환까지, 100제로 완전정복! ${QUESTIONS.length}제로 완전정복!</p>
+    <p>심장부터 혈액순환까지, OX 함정문장까지! ${QUESTIONS.length}제로 완전정복!</p>
   </div>
   <div class="card">
     <label class="field-label">👋 ${state.name}님, 반가워요!</label>
@@ -730,7 +872,7 @@ function beginList(list){
   clearResumeSnapshot(state.name);
   state.list=list;
   state.idx=0;state.correct=0;state.wrong=[];state.answers={};
-  state.setIdx=0;state.selected=null;state.submitted=false;state.giveUp=false;
+  state.setIdx=0;state.selected=null;state.submitted=false;state.giveUp=false;state.ox2Stage=1;
   state.gsSessionId=uid();
   screen='quiz';
   render();
@@ -740,6 +882,37 @@ function beginList(list){
 /* ============ QUIZ SCREEN ============ */
 function currentQ(){return state.list[state.idx];}
 
+function renderOX2UI(q,isLocked){
+  if(state.ox2Stage===2){
+    return q.reasons.map((r,i)=>{
+      let cls='choice';
+      if(state.submitted){
+        if(i===q.ra) cls+=' correct';
+        else if(i===state.selected) cls+=' wrong';
+      } else if(isLocked){
+        cls+=' locked';
+      } else if(state.selected===i){
+        cls+=' sel';
+      }
+      return `<div class="${cls}" data-idx="${i}">${['①','②','③'][i]} ${r}</div>`;
+    }).join('');
+  }
+  const labels=['⭕ 맞는 문장이에요','❌ 틀린 문장이에요'];
+  const correctIdx=q.isTrue?0:1;
+  return labels.map((label,i)=>{
+    let cls='choice';
+    if(state.submitted){
+      if(i===correctIdx) cls+=' correct';
+      else if(i===state.selected) cls+=' wrong';
+    } else if(isLocked){
+      cls+=' locked';
+    } else if(state.selected===i){
+      cls+=' sel';
+    }
+    return `<div class="${cls}" data-idx="${i}">${label}</div>`;
+  }).join('');
+}
+
 function renderQuiz(){
   const q=currentQ();
   if(!q) return renderResult();
@@ -747,7 +920,8 @@ function renderQuiz(){
   const timePct=Math.max(0,state.timeLeft/60*100);
   const submittedInfo=state.submitted?state.lastResult:null;
   const isLocked=state.mode==='deep' && !state.submitted && Date.now()<state.lockUntil;
-  const choicesHtml=q.o.map((opt,i)=>{
+  const isOX2=q.t==='ox2';
+  const choicesHtml=isOX2 ? renderOX2UI(q,isLocked) : q.o.map((opt,i)=>{
     let cls='choice';
     if(state.submitted){
       if(i===q.a) cls+=' correct';
@@ -759,6 +933,9 @@ function renderQuiz(){
     }
     return `<div class="${cls}" data-idx="${i}">${['①','②','③','④'][i]} ${opt}</div>`;
   }).join('');
+  const ox2StageTag=isOX2 ? (state.ox2Stage===2
+    ? `<div class="tag" style="background:#fdeceb;color:#c0392b;">2단계 · 이 문장이 틀린 진짜 이유는?</div>`
+    : `<div class="tag">1단계 · 이 문장, 맞을까요 틀릴까요?</div>`) : '';
   let feedback='';
   if(state.submitted){
     const ok=submittedInfo.ok;
@@ -774,6 +951,7 @@ function renderQuiz(){
     ${(state.combo||0)>=2?`<div class="combo-badge">🔥 ${state.combo}연속 정답!</div>`:''}
     <div class="qtext">Q${state.idx+1}. ${q.q}</div>
     ${q.img && IMG[q.img] ? `<img class="qimg" src="${IMG[q.img]}" alt="참고 그림">` : ''}
+    ${ox2StageTag}
     <div id="choicesWrap">${choicesHtml}</div>
     ${feedback}
     ${state.submitted?
@@ -829,9 +1007,51 @@ function autoSubmitTimeout(){ if(!state.submitted){handleSubmit(true);} }
 function handleSubmit(timeout){
   clearInterval(state.timerId);
   const q=currentQ();
+  if(q.t==='ox2' && state.ox2Stage===1 && !(timeout && state.selected==null)){
+    const pick=state.selected===0?'O':'X';
+    if(!q.isTrue && pick==='X'){
+      state.ox2Stage=2; state.selected=null;
+      render();
+      return;
+    }
+  }
   let ok=false;
-  if(timeout && state.selected==null){ ok=false; }
-  else { ok=state.selected===q.a; }
+  let yourAnswerText='(제출 안함)';
+  let correctAnswerText;
+  if(q.t==='ox2'){
+    const correctFirstText = q.isTrue ? '⭕ 맞는 문장' : ('❌ 틀린 문장 · '+q.reasons[q.ra]);
+    if(state.ox2Stage===1){
+      if(timeout && state.selected==null){
+        ok=false; yourAnswerText='(제출 안함)';
+      } else {
+        const pick=state.selected===0?'O':'X';
+        if(q.isTrue){
+          ok = pick==='O';
+          yourAnswerText = pick==='O' ? '⭕ 맞는 문장' : '❌ 틀린 문장';
+        } else {
+          ok=false;
+          yourAnswerText='⭕ 맞는 문장';
+        }
+      }
+      correctAnswerText = correctFirstText;
+    } else {
+      if(timeout && state.selected==null){
+        ok=false; yourAnswerText='(이유 선택 안함)';
+      } else {
+        ok = state.selected===q.ra;
+        yourAnswerText = state.selected!=null ? ('❌ 틀린 문장 · '+q.reasons[state.selected]) : '(이유 선택 안함)';
+      }
+      correctAnswerText = correctFirstText;
+    }
+  } else {
+    if(timeout && state.selected==null){
+      ok=false; yourAnswerText='(제출 안함)';
+    } else {
+      ok=state.selected===q.a;
+      yourAnswerText = state.selected!=null ? q.o[state.selected] : '(제출 안함)';
+    }
+    correctAnswerText = q.o[q.a];
+  }
   state.submitted=true;
   state.lastResult={ok};
   state.answers[q._id]=ok;
@@ -843,7 +1063,7 @@ function handleSubmit(timeout){
   else {
     state.combo=0;
     state.wrong=state.wrong.filter(w=>w.id!==q._id);
-    state.wrong.push({id:q._id,q:q.q,your:state.selected!=null?q.o[state.selected]:'(제출 안함)',correct:q.o[q.a],explain:q.e,cat:q.c});
+    state.wrong.push({id:q._id,q:q.q,your:yourAnswerText,correct:correctAnswerText,explain:q.e,cat:q.c});
   }
   render();
   saveResumeSnapshot();
@@ -851,7 +1071,7 @@ function handleSubmit(timeout){
 
 function goNext(){
   state.idx++;
-  state.selected=null;state.submitted=false;
+  state.selected=null;state.submitted=false;state.ox2Stage=1;
   if(state.idx>=state.list.length){ finishQuiz(); return; }
   if(state.mode==='focus' && state.idx>0 && state.idx%state.setSize===0){
     screen='setresult';render();return;
